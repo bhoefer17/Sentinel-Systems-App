@@ -662,22 +662,52 @@ function renderMessages(agentId) {
   });
   box.scrollTop = box.scrollHeight;
 }
-function sendMessage() {
+// ==================== BACKEND INTEGRATION ====================
+const BACKEND_URL = "http://172.27.14.151:8000";
+
+async function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text || !currentAgent) return;
-  messageStore[currentAgent].push({ role:'user', text });
+
+  messageStore[currentAgent].push({ role: 'user', text });
   input.value = '';
   renderMessages(currentAgent);
-  setTimeout(() => {
-    const replies = {
-      ara: "I'm here, Brandon. Processing your request.",
-      atlas: "Understood. Orchestrating response now.",
-      rex: "On it. Let me pull that data for you."
-    };
-    messageStore[currentAgent].push({ role:'agent', text: replies[currentAgent] });
+
+  const loadingId = 'loading-' + Date.now();
+  const box = document.getElementById('chat-box');
+  box.innerHTML += `<div id="${loadingId}" class="msg msg-agent">Thinking...</div>`;
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        agent: currentAgent
+      })
+    });
+
+    const data = await response.json();
+    document.getElementById(loadingId).remove();
+
+    messageStore[currentAgent].push({ 
+      role: 'agent', 
+      text: data.reply 
+    });
+
     renderMessages(currentAgent);
-  }, 800);
+
+  } catch (error) {
+    console.error("Connection error:", error);
+    document.getElementById(loadingId).remove();
+    messageStore[currentAgent].push({ 
+      role: 'agent', 
+      text: "Sorry, couldn't connect to Rex right now." 
+    });
+    renderMessages(currentAgent);
+  }
 }
 function addToNeurocore() {
   const btn = document.getElementById('neurocore-btn');
