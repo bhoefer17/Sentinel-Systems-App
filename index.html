@@ -621,18 +621,26 @@ function openAgent(id) {
   view.className = `screen agent-screen ${cfg.theme}`;
   document.getElementById('agent-title').textContent = cfg.name;
   document.getElementById('chat-input').placeholder = cfg.placeholder;
-
   ['ara','atlas','rex'].forEach(a => {
     document.getElementById(`agent-bg-${a}`).style.opacity = a===id ? '1' : '0';
   });
-
   renderMessages(id);
-
   const home = document.getElementById('home');
   home.classList.add('exit');
   setTimeout(() => { home.classList.remove('active','exit'); }, 400);
   view.classList.add('active');
   starCanvas.style.opacity = '0.4';
+
+  // === BRAIN BUTTON WIRED FOR ARA + REX (Jarvis edit) ===
+  const brainBtn = document.getElementById('brain-btn');
+  if (brainBtn) {
+    brainBtn.onclick = () => {
+      const neurocoreFile = id + '-neurocore.html';
+      window.open(neurocoreFile, '_blank');   // opens in new tab so chat stays alive
+    };
+  }
+  // ====================================================
+}
 
   // === BRAIN BUTTON WIRED HERE ===
   const brainBtn = document.getElementById('brain-btn');
