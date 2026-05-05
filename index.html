@@ -631,15 +631,15 @@ function openAgent(id) {
   view.classList.add('active');
   starCanvas.style.opacity = '0.4';
 
-  // === BRAIN BUTTON WIRED FOR ARA + REX (Jarvis edit) ===
+  // === BRAIN BUTTON — wired for Ara + Rex (this is the only change) ===
   const brainBtn = document.getElementById('brain-btn');
   if (brainBtn) {
     brainBtn.onclick = () => {
       const neurocoreFile = id + '-neurocore.html';
-      window.open(neurocoreFile, '_blank');   // opens in new tab so chat stays alive
+      window.open(neurocoreFile, '_blank');   // opens in new tab so chat stays open
     };
   }
-  // ====================================================
+  // ===================================================================
 }
 
   // === BRAIN BUTTON WIRED HERE ===
