@@ -631,7 +631,7 @@ function openAgent(id) {
   view.classList.add('active');
   starCanvas.style.opacity = '0.4';
 
-  // === BRAIN BUTTON — wired for Ara + Rex (this is the only change) ===
+  // === BRAIN BUTTON WIRED FOR ARA + REX ===
   const brainBtn = document.getElementById('brain-btn');
   if (brainBtn) {
     brainBtn.onclick = () => {
@@ -639,17 +639,9 @@ function openAgent(id) {
       window.open(neurocoreFile, '_blank');   // opens in new tab so chat stays open
     };
   }
-  // ===================================================================
+  // =======================================
 }
-
-  // === BRAIN BUTTON WIRED HERE ===
-  const brainBtn = document.getElementById('brain-btn');
-  brainBtn.onclick = () => {
-    const neurocoreFile = id + '-neurocore.html';
-    window.open(neurocoreFile, '_blank');   // opens in new tab so chat stays open
-  };
-  // =================================
-}
+ 
 function goHome() {
   const home = document.getElementById('home');
   const view = document.getElementById('agent-view');
