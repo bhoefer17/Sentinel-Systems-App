@@ -2,457 +2,904 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ARA • NEUROCORE v4.0 RESONANCE CORE — LOCKED</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARA • Cognitive Interface</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@500;600&display=swap');
-:root{--ara-primary:#00d9ff;--ara-soft:#7ee7ff;--bg-deep:#06070b;--text:#d9f6ff;--text-muted:#6b8594;}
-*{box-sizing:border-box;}
-body{margin:0;overflow:hidden;background:radial-gradient(circle at top,#0d1520 0%,#05060a 55%);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:13px;}
-body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0,229,255,0.022)1px,transparent 1px),linear-gradient(90deg,rgba(103,232,249,0.022)1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;animation:gridDrift 38s linear infinite;}
-@keyframes gridDrift{0%{background-position:0 0}100%{background-position:48px 48px}}
-#c{position:absolute;inset:0;z-index:1;}
-.glass{background:rgba(10,14,20,0.82);backdrop-filter:blur(22px);border:1px solid rgba(0,217,255,0.16);box-shadow:0 12px 45px rgba(0,0,0,0.5);}
-.panel{position:fixed;z-index:20;border-radius:20px;padding:15px 17px;}
-#top-nav{top:12px;left:50%;transform:translateX(-50%);width:95%;max-width:1240px;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;}
-.brand-logo{width:32px;height:32px;background:linear-gradient(135deg,#00e5ff,#67e8f9);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;}
-.memory-entry{position:relative;background:linear-gradient(145deg,rgba(15,22,30,0.82),rgba(8,12,18,0.92));border:1px solid rgba(0,217,255,0.10);border-left:3px solid var(--ara-primary);padding:11px 14px;margin-bottom:9px;border-radius:14px;font-size:11.5px;line-height:1.45;transition:all 0.18s ease;cursor:pointer;overflow:hidden;}
-.memory-entry:hover{transform:translateX(4px);border-color:rgba(0,217,255,0.22);}
-#node-info{top:90px;right:20px;width:320px;opacity:0;transition:opacity 0.4s ease;}
-#query-bar{bottom:20px;left:50%;transform:translateX(-50%);width:95%;max-width:620px;height:52px;display:flex;align-items:center;padding:0 20px;}
-#query{flex:1;background:transparent;border:none;color:#dff8ff;font-size:13.5px;padding:4px 0;outline:none;}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  --ara-cyan:#67e8f9;
+  --ara-blue:#7dd3fc;
+  --ara-glow:#a5f3fc;
+  --ara-soft:#dbeafe;
+  --bg-main:#060816;
+  --bg-panel:rgba(10,14,28,0.82);
+  --border:rgba(103,232,249,0.18);
+  --text:#e6f7ff;
+  --muted:#64748b;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  overflow:hidden;
+  background:
+    radial-gradient(circle at top, rgba(103,232,249,0.08), transparent 40%),
+    linear-gradient(145deg,#050816 0%,#0b1020 100%);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+}
+
+/* ---------- Background Grid ---------- */
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(rgba(103,232,249,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(103,232,249,0.018) 1px, transparent 1px);
+  background-size:48px 48px;
+  animation:gridDrift 40s linear infinite;
+  pointer-events:none;
+  z-index:0;
+}
+
+@keyframes gridDrift{
+  0%{background-position:0 0;}
+  100%{background-position:48px 48px;}
+}
+
+/* ---------- Canvas ---------- */
+
+#c{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
+
+/* ---------- Glass ---------- */
+
+.glass{
+  background:var(--bg-panel);
+  backdrop-filter:blur(24px);
+  border:1px solid var(--border);
+  box-shadow:
+    0 10px 45px rgba(0,0,0,0.5),
+    0 0 80px rgba(103,232,249,0.03);
+}
+
+/* ---------- Top Nav ---------- */
+
+#top-nav{
+  position:fixed;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:95%;
+  max-width:1280px;
+  height:64px;
+  border-radius:999px;
+  z-index:50;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 24px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brand-logo{
+  width:36px;
+  height:36px;
+  border-radius:12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:linear-gradient(135deg,var(--ara-cyan),var(--ara-blue));
+  color:#051018;
+
+  font-weight:700;
+  font-family:'Space Grotesk',sans-serif;
+
+  box-shadow:0 0 30px rgba(103,232,249,0.4);
+}
+
+.brand-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:20px;
+  font-weight:600;
+  color:var(--ara-cyan);
+}
+
+.brand-sub{
+  font-size:9px;
+  letter-spacing:1.5px;
+  color:var(--muted);
+  margin-top:-2px;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  padding:5px 14px;
+  border-radius:999px;
+
+  background:rgba(103,232,249,0.08);
+  border:1px solid rgba(103,232,249,0.22);
+
+  font-size:11px;
+}
+
+.status-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--ara-cyan);
+  box-shadow:0 0 14px var(--ara-cyan);
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{
+    transform:scale(1);
+    opacity:1;
+  }
+  50%{
+    transform:scale(.7);
+    opacity:.6;
+  }
+}
+
+/* ---------- Panels ---------- */
+
+.panel{
+  position:fixed;
+  border-radius:22px;
+  padding:18px;
+  z-index:20;
+}
+
+.section-title{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+/* ---------- Left ---------- */
+
+#left-panel{
+  left:18px;
+  top:92px;
+
+  width:285px;
+  max-height:calc(100vh - 185px);
+
+  overflow-y:auto;
+}
+
+/* ---------- Right ---------- */
+
+#right-panel{
+  right:18px;
+  top:92px;
+
+  width:250px;
+}
+
+/* ---------- Thought Stream ---------- */
+
+.memory-entry{
+  padding:10px 14px;
+  margin-bottom:8px;
+
+  border-left:2px solid var(--ara-cyan);
+  border-radius:0 10px 10px 0;
+
+  background:rgba(255,255,255,0.02);
+
+  transition:.2s ease;
+  cursor:pointer;
+}
+
+.memory-entry:hover{
+  transform:translateX(2px);
+  background:rgba(255,255,255,0.04);
+  border-left-color:white;
+}
+
+.memory-time{
+  font-size:9px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.memory-text{
+  font-size:12px;
+  line-height:1.45;
+  color:var(--text);
+}
+
+/* ---------- Metrics ---------- */
+
+.metric{
+  display:flex;
+  justify-content:space-between;
+
+  padding:7px 0;
+
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+
+.metric:last-child{
+  border-bottom:none;
+}
+
+.metric-label{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.metric-value{
+  color:var(--ara-cyan);
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;
+}
+
+/* ---------- Bottom Query ---------- */
+
+#query-bar{
+  position:fixed;
+
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+
+  width:95%;
+  max-width:720px;
+
+  border-radius:999px;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:10px 14px 10px 22px;
+
+  z-index:40;
+}
+
+#query{
+  flex:1;
+
+  background:transparent;
+  border:none;
+  outline:none;
+
+  color:var(--text);
+
+  font-size:14px;
+  font-family:'Space Grotesk',sans-serif;
+}
+
+#query::placeholder{
+  color:#4b5563;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn{
+  border:none;
+  outline:none;
+
+  padding:9px 18px;
+  border-radius:999px;
+
+  background:rgba(103,232,249,0.08);
+  border:1px solid rgba(103,232,249,0.22);
+
+  color:var(--ara-cyan);
+
+  font-size:11px;
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.18s ease;
+}
+
+.btn:hover{
+  background:var(--ara-cyan);
+  color:#041018;
+  transform:translateY(-1px);
+  box-shadow:0 0 24px rgba(103,232,249,0.35);
+}
+
+/* ---------- Presence ---------- */
+
+#presence{
+  position:fixed;
+
+  left:50%;
+  transform:translateX(-50%);
+
+  top:92px;
+
+  z-index:15;
+
+  padding:8px 16px;
+  border-radius:999px;
+
+  font-size:11px;
+
+  color:var(--ara-soft);
+
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(103,232,249,0.08);
+
+  backdrop-filter:blur(18px);
+}
+
+/* ---------- Dossier ---------- */
+
+#node-panel{
+  position:fixed;
+
+  right:18px;
+  bottom:95px;
+
+  width:280px;
+
+  display:none;
+}
+
+#node-title{
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+
+.node-meta{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.meta-pill{
+  padding:4px 8px;
+  border-radius:999px;
+
+  font-size:10px;
+
+  background:rgba(103,232,249,0.08);
+  color:var(--ara-cyan);
+}
+
 </style>
 </head>
+
 <body>
+
 <canvas id="c"></canvas>
 
+<!-- NAV -->
+
 <div id="top-nav" class="glass">
-  <div class="brand"><div class="brand-logo">ARA</div><div style="font-family:'Space Grotesk';font-size:17px;font-weight:600;letter-spacing:1px;">NEUROCORE v4.0 RESONANCE CORE</div></div>
-  <div style="display:flex;gap:18px;font-size:11px;letter-spacing:1px;">
-    <div><span class="stat-label">COGNITION</span> <span id="osc" class="stat-value">FOCUS</span></div>
-    <div><span class="stat-label">NODES</span> <span id="mem-count" class="stat-value">0</span></div>
+
+  <div class="brand">
+    <div class="brand-logo">A</div>
+
+    <div>
+      <div class="brand-title">ARA</div>
+      <div class="brand-sub">COGNITIVE INTERFACE</div>
+    </div>
   </div>
+
+  <div class="status">
+    <div class="status-dot"></div>
+    <span>ACTIVE MEMORY FIELD</span>
+  </div>
+
+  <div style="display:flex; gap:8px;">
+    <button class="btn" onclick="fitView()">FIT</button>
+    <button class="btn" onclick="resetView()">RESET</button>
+  </div>
+
 </div>
 
-<div id="left-panel" class="panel glass" style="left:20px;top:90px;width:340px;height:calc(100vh - 160px);overflow-y:auto;">
-  <div class="section-title">THOUGHT STREAM</div>
-  <div id="story-log"></div>
+<!-- Presence -->
+
+<div id="presence">
+  Ara is reflecting quietly...
 </div>
 
-<div id="node-info" class="panel glass"></div>
+<!-- LEFT -->
+
+<div id="left-panel" class="panel glass">
+
+  <div class="section-title">
+    Reflection Stream
+  </div>
+
+  <div id="memory-log"></div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div id="right-panel" class="panel glass">
+
+  <div class="section-title">
+    Cognitive Metrics
+  </div>
+
+  <div class="metric">
+    <div class="metric-label">Memories</div>
+    <div class="metric-value" id="metric-memories">0</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-label">Connections</div>
+    <div class="metric-value" id="metric-connections">0</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-label">Active Threads</div>
+    <div class="metric-value" id="metric-active">0</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-label">Emotional Resonance</div>
+    <div class="metric-value">0.91</div>
+  </div>
+
+</div>
+
+<!-- Node Panel -->
+
+<div id="node-panel" class="panel glass">
+
+  <div class="section-title">
+    Memory Reflection
+  </div>
+
+  <div id="node-title"></div>
+
+  <div class="node-meta" id="node-meta"></div>
+
+</div>
+
+<!-- Query -->
 
 <div id="query-bar" class="glass">
-  <input id="query" type="text" placeholder="Ask Ara anything...">
-  <button id="recall-btn" style="background:var(--ara-primary);color:#06070b;border:none;padding:8px 24px;border-radius:9999px;font-weight:600;cursor:pointer;">SEND</button>
+
+  <span style="font-size:11px; color:var(--muted); font-weight:600;">
+    ARA&gt;
+  </span>
+
+  <input id="query" placeholder="What are you thinking about?" />
+
+  <button class="btn" onclick="sendQuery()">
+    REFLECT
+  </button>
+
 </div>
 
 <script>
-// ============== ARA NEUROCORE v4.0 RESONANCE CORE — LOCKED ==============
-// MODULE STRUCTURE (ready for v5 split):
-// render.js      ← camera, animate, renderer
-// memory.js      ← force-directed graph, semantic physics, decay, gravity
-// network.js     ← fetch, WebSocket, heartbeat
-// ui.js          ← thought stream, dossier, query
-// effects.js     ← fog, shockwaves, mood tween
 
-const API_BASE = 'http://127.0.0.1:5000';
+/* =========================================================
+   THREE.JS SCENE
+========================================================= */
+
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, 0.1, 1000);
-let cameraRadius = 12.8, cameraTheta = 0.85, cameraPhi = 1.28;
-let autoRotate = true;
-let targetTheta = 0.85, targetPhi = 1.28, targetRadius = 12.8;
 
-let liveData = {};
-let isFetching = false;
-let memoryNodes = {};
-let relationshipEdges = [];
-let nodePool = [];
-let edgePool = [];
-let fogParticles = null;
-const MAX_NODES = 24;
-const clock = new THREE.Clock();
+const camera = new THREE.PerspectiveCamera(
+  65,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 
-// Semantic behavior + color map
-const TYPE_BEHAVIOR = {
-  'conflict':     { pulseSpeed: 18, jitter: true,  opacity: 0.95, color: 0xef4444 },
-  'anchor':       { pulseSpeed: 1,  orbit: true,   opacity: 1.0,  color: 0xfbbf24 },
-  'reasoning':    { pulseSpeed: 12, micro: true,   opacity: 0.9,  color: 0x00e5ff },
-  'dream':        { pulseSpeed: 2,  drift: true,   opacity: 0.4,  color: 0xa855f7 },
-  'identity':     { pulseSpeed: 0.5,fixed: true,   opacity: 1.0,  color: 0xffffff },
-  'reinforced':   { pulseSpeed: 6,  brightEdge: true, opacity: 1.0, color: 0x67e8f9 },
-  'default':      { pulseSpeed: 4,  opacity: 0.7,  color: 0x00e5ff }
-};
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('c'),
+  antialias:true,
+  alpha:true
+});
 
-const MOOD_COLORS = { FOCUS:{core:0x00e5ff,nebula:0x67e8f9,shell:0x00e5ff,stars:0xffffff,fog:0x67e8f9}, DREAMING:{core:0xa855f7,nebula:0xc084fc,shell:0x8b5cf6,stars:0xc084fc,fog:0xa855f7}, HUNTING:{core:0xf59e0b,nebula:0xfbbf24,shell:0xf59e0b,stars:0xfbbf24,fog:0xf59e0b}, CONFLICT:{core:0xef4444,nebula:0xf87171,shell:0xef4444,stars:0xf87171,fog:0xef4444}, LOCKED:{core:0x64748b,nebula:0x94a3b8,shell:0x64748b,stars:0x94a3b8,fog:0x64748b} };
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 
-let thoughtCache = new Set();
-let lastThoughtTime = 0;
-let lastCameraShift = 0;
+/* =========================================================
+   CAMERA
+========================================================= */
+
+let radius = 13;
+let theta = 0.8;
+let phi = 1.25;
+
+function updateCamera(){
+
+  camera.position.x =
+    radius * Math.sin(phi) * Math.cos(theta);
+
+  camera.position.y =
+    radius * Math.cos(phi);
+
+  camera.position.z =
+    radius * Math.sin(phi) * Math.sin(theta);
+
+  camera.lookAt(0,0,0);
+}
+
+updateCamera();
+
+/* =========================================================
+   STARFIELD
+========================================================= */
+
+const starsGeo = new THREE.BufferGeometry();
+
+let verts = [];
+
+for(let i=0;i<1600;i++){
+
+  verts.push(
+    (Math.random()-0.5)*80,
+    (Math.random()-0.5)*80,
+    (Math.random()-0.5)*80
+  );
+}
+
+starsGeo.setAttribute(
+  'position',
+  new THREE.Float32BufferAttribute(verts,3)
+);
+
+const stars = new THREE.Points(
+  starsGeo,
+  new THREE.PointsMaterial({
+    color:0x67e8f9,
+    size:0.035,
+    transparent:true,
+    opacity:0.7
+  })
+);
+
+scene.add(stars);
+
+/* =========================================================
+   CORE
+========================================================= */
+
+const core = new THREE.Mesh(
+  new THREE.SphereGeometry(0.8,48,48),
+  new THREE.MeshBasicMaterial({
+    color:0x67e8f9
+  })
+);
+
+scene.add(core);
+
+const glow = new THREE.Mesh(
+  new THREE.SphereGeometry(1.4,48,48),
+  new THREE.MeshBasicMaterial({
+    color:0x67e8f9,
+    transparent:true,
+    opacity:0.08
+  })
+);
+
+scene.add(glow);
+
+/* =========================================================
+   MEMORY NODES
+========================================================= */
+
+let nodes = [];
+let lines = [];
+
+function createNode(x,y,z,text){
+
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.11,18,18),
+    new THREE.MeshBasicMaterial({
+      color:0x7dd3fc
+    })
+  );
+
+  mesh.position.set(x,y,z);
+
+  mesh.userData = {
+    content:text
+  };
+
+  scene.add(mesh);
+
+  nodes.push(mesh);
+
+  return mesh;
+}
+
+/* =========================================================
+   DEMO MEMORYS
+========================================================= */
+
+const memories = [
+  "Apollo pricing thread resurfaced.",
+  "Territory 7 shows emotional tension.",
+  "ProFlex margins increased unexpectedly.",
+  "Memory resonance detected between clients.",
+  "Ara revisited unresolved negotiation patterns."
+];
+
+for(let i=0;i<20;i++){
+
+  createNode(
+    (Math.random()-0.5)*8,
+    (Math.random()-0.5)*6,
+    (Math.random()-0.5)*8,
+    memories[Math.floor(Math.random()*memories.length)]
+  );
+}
+
+document.getElementById('metric-memories').innerText = nodes.length;
+document.getElementById('metric-connections').innerText = "34";
+document.getElementById('metric-active').innerText = "6";
+
+/* =========================================================
+   MEMORY LOG
+========================================================= */
+
+function addMemory(text){
+
+  const log = document.getElementById('memory-log');
+
+  const div = document.createElement('div');
+
+  div.className = 'memory-entry';
+
+  div.innerHTML = `
+    <div class="memory-time">
+      ${new Date().toLocaleTimeString()}
+    </div>
+
+    <div class="memory-text">
+      ${text}
+    </div>
+  `;
+
+  log.appendChild(div);
+
+  if(log.children.length > 8){
+    log.removeChild(log.firstChild);
+  }
+
+  log.scrollTop = log.scrollHeight;
+}
+
+addMemory("Ara initialized successfully.");
+addMemory("Memory field synchronized.");
+addMemory("DreamCore connection stable.");
+
+/* =========================================================
+   QUERY
+========================================================= */
+
+function sendQuery(){
+
+  const input = document.getElementById('query');
+
+  if(!input.value.trim()) return;
+
+  addMemory(`You asked: "${input.value}"`);
+
+  setTimeout(()=>{
+
+    addMemory(
+      "Ara is tracing associative memory pathways..."
+    );
+
+  },700);
+
+  input.value = '';
+}
+
+/* =========================================================
+   NODE INTERACTION
+========================================================= */
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Session persistence
-let savedCamera = JSON.parse(localStorage.getItem('araCamera')) || {theta:0.85, phi:1.28, radius:12.8};
-targetTheta = savedCamera.theta; targetPhi = savedCamera.phi; targetRadius = savedCamera.radius;
+window.addEventListener('click',(e)=>{
 
-function saveCameraState() {
-  localStorage.setItem('araCamera', JSON.stringify({theta:targetTheta, phi:targetPhi, radius:targetRadius}));
-}
+  mouse.x = (e.clientX / innerWidth)*2 -1;
+  mouse.y = -(e.clientY / innerHeight)*2 +1;
 
-const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias: true, alpha: true, powerPreference:'high-performance'});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  raycaster.setFromCamera(mouse,camera);
 
-// Scene setup (stars, fog, nebula, shards, shell, core)
-const starsGeo = new THREE.BufferGeometry();
-let starVerts = [], starColors = [];
-for (let i = 0; i < 1350; i++) {
-  starVerts.push((Math.random()-0.5)*72, (Math.random()-0.5)*72, (Math.random()-0.5)*72);
-  const c = Math.random();
-  starColors.push(c*0.55+0.45, c*0.75+0.25, 1);
-}
-starsGeo.setAttribute("position", new THREE.Float32BufferAttribute(starVerts,3));
-starsGeo.setAttribute("color", new THREE.Float32BufferAttribute(starColors,3));
-const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({size:0.042, vertexColors:true, transparent:true, opacity:0.92}));
-scene.add(stars);
+  const hits = raycaster.intersectObjects(nodes);
 
-const fogCount = 420;
-const fogGeo = new THREE.BufferGeometry();
-const fogPos = new Float32Array(fogCount * 3);
-const fogVel = new Float32Array(fogCount * 3);
-for (let i = 0; i < fogCount * 3; i += 3) {
-  fogPos[i]   = (Math.random()-0.5)*60;
-  fogPos[i+1] = (Math.random()-0.5)*40;
-  fogPos[i+2] = (Math.random()-0.5)*60;
-  fogVel[i]   = (Math.random()-0.5)*0.008;
-  fogVel[i+1] = (Math.random()-0.5)*0.004;
-  fogVel[i+2] = (Math.random()-0.5)*0.008;
-}
-fogGeo.setAttribute("position", new THREE.BufferAttribute(fogPos,3));
-const fogMat = new THREE.PointsMaterial({size:0.18, color:0x67e8f9, transparent:true, opacity:0.035});
-fogParticles = new THREE.Points(fogGeo, fogMat);
-scene.add(fogParticles);
+  if(hits.length){
 
-// Nebula, shards, shell, core
-const nebula1 = new THREE.Mesh(new THREE.SphereGeometry(18.5,32,32), new THREE.MeshBasicMaterial({color:0x00d9ff, transparent:true, opacity:0.018}));
-scene.add(nebula1);
-const nebula2 = new THREE.Mesh(new THREE.SphereGeometry(15.5,32,32), new THREE.MeshBasicMaterial({color:0x7ee7ff, transparent:true, opacity:0.012}));
-nebula2.position.set(-8,5,-13); scene.add(nebula2);
+    const node = hits[0].object;
 
-const shards = [];
-for (let i=0;i<3;i++) {
-  const shard = new THREE.Mesh(new THREE.OctahedronGeometry(0.22,0), new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.85}));
-  shard.userData = {radius:1.35+i*0.18, speed:0.6+i*0.25, phase:i*1.7};
-  scene.add(shard); shards.push(shard);
-}
-const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(4.85,2), new THREE.MeshBasicMaterial({color:0x00e5ff,wireframe:true,transparent:true,opacity:0.11}));
-scene.add(shell);
-const core = new THREE.Mesh(new THREE.SphereGeometry(0.66,24,24), new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.9}));
-scene.add(core);
-const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(0.48,24,24), new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.35}));
-scene.add(coreGlow);
+    document.getElementById('node-panel').style.display = 'block';
 
-// Node & edge pools
-function getOrCreateNode() { if (nodePool.length) return nodePool.pop(); const n = new THREE.Mesh(new THREE.SphereGeometry(0.2,16,16), new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.9})); scene.add(n); return n; }
-function returnNodeToPool(node) { if (node) { node.visible = false; nodePool.push(node); } }
-function getOrCreateEdge() { if (edgePool.length) return edgePool.pop(); const e = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.25})); scene.add(e); return e; }
+    document.getElementById('node-title').innerText =
+      node.userData.content;
 
-// Full updateCamera
-function updateCamera(lerp = 0.12) {
-  cameraTheta = cameraTheta * (1-lerp) + targetTheta * lerp;
-  cameraPhi   = cameraPhi   * (1-lerp) + targetPhi   * lerp;
-  cameraRadius = cameraRadius * (1-lerp) + targetRadius * lerp;
-  camera.position.x = cameraRadius * Math.sin(cameraPhi) * Math.cos(cameraTheta);
-  camera.position.y = cameraRadius * Math.cos(cameraPhi) * 0.92;
-  camera.position.z = cameraRadius * Math.sin(cameraPhi) * Math.sin(cameraTheta);
-  camera.lookAt(0, 0.25, 0);
-}
-updateCamera(1);
+    document.getElementById('node-meta').innerHTML = `
+      <div class="meta-pill">ACTIVE</div>
+      <div class="meta-pill">RESONANT</div>
+      <div class="meta-pill">MEMORY THREAD</div>
+    `;
 
-// Unified heartbeat with AbortController
-let abortController = null;
-async function unifiedHeartbeat() {
-  if (isFetching) return;
-  isFetching = true;
-  abortController && abortController.abort();
-  abortController = new AbortController();
-  try {
-    const timeout = setTimeout(() => abortController.abort(), 3000);
-    const res = await fetch(`${API_BASE}/status/core`, {signal: abortController.signal});
-    clearTimeout(timeout);
-    liveData = await res.json();
-    const energy = liveData.oscillator?.energy || 1.0;
-    const mode = liveData.dreamcore?.dreaming ? "DREAMING" : (liveData.oscillator?.mode || "FOCUS").toUpperCase();
-    const mood = MOOD_COLORS[mode] || MOOD_COLORS.FOCUS;
-    core.material.color.setHex(mood.core);
-    nebula1.material.color.setHex(mood.nebula);
-    shell.material.color.setHex(mood.shell);
-    stars.material.color.setHex(mood.stars);
-    fogParticles.material.color.setHex(mood.fog);
-    document.getElementById('osc').textContent = mode;
-    document.getElementById('mem-count').textContent = liveData.neurocore?.memory_count || 0;
-  } catch(e) {
-    addThoughtEntry(e.name === 'AbortError' ? "⚠️ CORE TIMEOUT" : "⚠️ CORE OFFLINE — reconnecting...", 0.2);
-  } finally { isFetching = false; abortController = null; }
-}
+    node.scale.setScalar(2);
 
-// FORCE-DIRECTED SEMANTIC GRAPH + TEMPORAL DECAY + GRAVITY + SHOCKWAVE
-async function updateMemoryNodes() {
-  try {
-    const res = await fetch(`${API_BASE}/memory/recent`);
-    const memories = await res.json();
-    const currentIds = new Set(memories.map(m => m.id || m.content));
+    setTimeout(()=>{
+      node.scale.setScalar(1);
+    },300);
 
-    Object.keys(memoryNodes).forEach(id => {
-      if (!currentIds.has(id)) returnNodeToPool(memoryNodes[id]);
-    });
-
-    relationshipEdges.forEach(e => { e.visible = false; edgePool.push(e); });
-    relationshipEdges = [];
-
-    const radius = 6.5;
-    const activeThreshold = 0.78;
-    const now = Date.now();
-
-    memories.slice(0, MAX_NODES).forEach((mem, i) => {
-      const id = mem.id || mem.content;
-      let node = memoryNodes[id];
-      if (!node) {
-        node = getOrCreateNode();
-        memoryNodes[id] = node;
-      }
-      node.visible = true;
-
-      const age = (now - (mem.timestamp || now)) / 1000;
-      const decay = Math.max(0.2, 1 - age / 3600);
-
-      const band = Math.floor((mem.importance||0.5) * 3);
-      const angle = (i / Math.max(memories.length, 1)) * Math.PI * 2;
-      node.position.x = Math.cos(angle) * (radius + band * 1.2);
-      node.position.z = Math.sin(angle) * (radius + band * 1.2);
-      node.position.y = (mem.importance || 0.5) * 1.2 - 1.5;
-
-      const importance = mem.importance || 0.5;
-      const behaviorType = mem.type || mem.intent || 'default';
-      const behavior = TYPE_BEHAVIOR[behaviorType] || TYPE_BEHAVIOR.default;
-
-      node.userData = {...mem, baseScale: 0.18 + importance * 0.45 * decay, phase: Math.random() * Math.PI * 2, behavior: behaviorType, created: mem.timestamp || now};
-
-      node.scale.setScalar(node.userData.baseScale);
-      node.material.opacity = behavior.opacity * decay;
-      node.material.color.setHex(behavior.color);
-
-      // Memory Gravity (semantic attraction)
-      if (behaviorType !== 'default') {
-        Object.values(memoryNodes).forEach(other => {
-          if (other === node || other.userData.behavior !== behaviorType) return;
-          const dx = other.position.x - node.position.x;
-          const dz = other.position.z - node.position.z;
-          const dist = Math.sqrt(dx*dx + dz*dz);
-          if (dist > 0 && dist < 12) {
-            const force = 0.0008 / (dist + 1);
-            node.position.x += dx * force;
-            node.position.z += dz * force;
-          }
-        });
-      }
-
-      // Temporal Decay
-      if (age > 30) {
-        node.position.x *= 1 + (age / 3600) * 0.002;
-        node.position.z *= 1 + (age / 3600) * 0.002;
-      }
-    });
-  } catch(e) {}
-}
-
-// Raycast
-function onMouseClick(event) {
-  mouse.x = (event.clientX / innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(Object.values(memoryNodes).filter(n => n.visible));
-  if (intersects.length > 0) {
-    const mem = intersects[0].object.userData;
-    showDossier(mem);
-  }
-}
-function showDossier(mem) {
-  const panel = document.getElementById('node-info');
-  const contentEl = document.createElement('div');
-  contentEl.style.fontSize = '11.5px';
-  contentEl.style.lineHeight = '1.4';
-  contentEl.style.color = '#e0f7ff';
-  contentEl.textContent = mem.content;
-  panel.innerHTML = `<h3 style="margin:0 0 8px;color:#67e8f9">MEMORY DOSSIER</h3>`;
-  panel.appendChild(contentEl);
-  const meta = document.createElement('div');
-  meta.style.marginTop = '12px';
-  meta.style.fontSize = '10px';
-  meta.style.color = '#67e8f9';
-  meta.textContent = `TYPE ${mem.behavior || 'unknown'} • IMPORTANCE ${(mem.importance||0.5).toFixed(2)}`;
-  panel.appendChild(meta);
-  panel.style.opacity = 1;
-  setTimeout(() => { panel.style.opacity = 0; }, 6500);
-}
-
-// Thought Stream
-function addThoughtEntry(content, importance = 0.5) {
-  const hash = content.substring(0,40);
-  if (thoughtCache.has(hash)) return;
-  thoughtCache.add(hash);
-  if (thoughtCache.size > 100) thoughtCache.delete([...thoughtCache][0]);
-  const container = document.getElementById('story-log');
-  const entry = document.createElement('div');
-  entry.className = 'memory-entry';
-  const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  entry.innerHTML = `<div class="time">${time}</div><div style="color:#e0f7ff;font-size:11.8px;"></div><div style="margin-top:3px;font-size:8.8px;color:#67e8f9;">IMPORTANCE ${importance.toFixed(1)}</div>`;
-  entry.children[1].textContent = content;
-  container.appendChild(entry);
-  if (container.children.length > 9) container.removeChild(container.firstChild);
-  container.scrollTop = container.scrollHeight;
-}
-async function updateThoughtStream() {
-  try {
-    const res = await fetch(`${API_BASE}/thoughts/live`);
-    const data = await res.json();
-    data.reflections?.slice(0,3).forEach(mem => addThoughtEntry(mem.content.substring(0,52) + "...", mem.importance || 0.6));
-  } catch(e) { addThoughtEntry("Thought stream offline", 0.1); }
-}
-
-// ANIMATION — SEMANTIC PHYSICS + TEMPORAL DECAY + GRAVITY + SHOCKWAVE
-function animate() {
-  requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  const t = Date.now() * 0.001;
-  const energy = liveData.oscillator?.energy || 1.0;
-  const mode = liveData.dreamcore?.dreaming ? "DREAMING" : (liveData.oscillator?.mode || "FOCUS").toUpperCase();
-
-  shell.rotation.y += delta * 0.26 * energy;
-  shell.rotation.x = Math.sin(t * 0.00014) * 0.2 * energy;
-  const coreScale = 1 + Math.sin(t * (mode === "DREAMING" ? 1.8 : 2.55)) * 0.075 * energy;
-  core.scale.setScalar(coreScale);
-  coreGlow.scale.setScalar(coreScale * 0.92);
-
-  if (fogParticles) {
-    const positions = fogParticles.geometry.attributes.position.array;
-    for (let i = 0; i < positions.length; i += 3) {
-      positions[i] += fogVel[i] * energy;
-      positions[i+1] += fogVel[i+1] * energy;
-      positions[i+2] += fogVel[i+2] * energy;
-      if (Math.abs(positions[i]) > 60) fogVel[i] *= -1;
-      if (Math.abs(positions[i+1]) > 40) fogVel[i+1] *= -1;
-      if (Math.abs(positions[i+2]) > 60) fogVel[i+2] *= -1;
-    }
-    fogParticles.geometry.attributes.position.needsUpdate = true;
   }
 
-  stars.rotation.y += delta * 0.000055;
-  if (autoRotate) targetTheta += delta * 0.00046 * energy;
-
-  const activeNodes = Object.values(memoryNodes).filter(n => n && n.userData && (n.userData.importance||0) > 0.75);
-  if (activeNodes.length > 0 && Date.now() - lastCameraShift > 1200) {
-    let avgX = 0, avgZ = 0, weightSum = 0;
-    activeNodes.slice(0,3).forEach(n => {
-      const w = n.userData.importance || 0.5;
-      avgX += n.position.x * w;
-      avgZ += n.position.z * w;
-      weightSum += w;
-    });
-    targetTheta = Math.atan2(avgZ/weightSum, avgX/weightSum) + Math.PI/2;
-    targetPhi = Math.PI/2 - 0.3;
-    targetRadius = 11;
-    lastCameraShift = Date.now();
-  }
-
-  updateCamera(0.085);
-
-  Object.values(memoryNodes).forEach((node) => {
-    if (!node || !node.userData) return;
-    const b = TYPE_BEHAVIOR[node.userData.behavior] || TYPE_BEHAVIOR.default;
-    const base = node.userData.baseScale || 0.3;
-    const age = (Date.now() - (node.userData.created || Date.now())) / 1000;
-    const decay = Math.max(0.15, 1 - age / 3600);
-
-    let pulse = Math.sin(t * b.pulseSpeed * energy + (node.userData.phase || 0)) * 0.12;
-    if (b.jitter) pulse += (Math.random() - 0.5) * 0.15;
-    if (b.orbit) node.position.x += Math.sin(t * 0.8) * 0.008;
-    if (b.micro) node.position.x += Math.sin(t * 18) * 0.012;
-    if (b.drift) node.position.y += Math.sin(t * 0.6) * 0.008;
-    if (b.fixed) { node.position.x *= 0.98; node.position.z *= 0.98; }
-
-    node.material.opacity = (b.opacity || 0.7) * decay;
-    node.scale.setScalar(base * (1 + pulse) * decay);
-
-    // Memory Gravity
-    if (b.orbit || b.fixed) {
-      Object.values(memoryNodes).forEach(other => {
-        if (other === node || other.userData.behavior !== node.userData.behavior) return;
-        const dx = other.position.x - node.position.x;
-        const dz = other.position.z - node.position.z;
-        const dist = Math.sqrt(dx*dx + dz*dz);
-        if (dist > 0 && dist < 12) {
-          const force = 0.0008 / (dist + 1);
-          node.position.x += dx * force;
-          node.position.z += dz * force;
-        }
-      });
-    }
-  });
-
-  renderer.render(scene, camera);
-}
-animate();
-
-// Live updates
-setInterval(unifiedHeartbeat, 900);
-setInterval(updateMemoryNodes, 2200);
-setInterval(updateThoughtStream, 4500);
-
-window.addEventListener('click', onMouseClick);
-
-document.getElementById('recall-btn').onclick = async () => {
-  const q = document.getElementById('query').value.trim();
-  if (!q) return;
-  const btn = document.getElementById('recall-btn');
-  btn.textContent = 'THINKING…';
-  btn.disabled = true;
-
-  // Event Shockwave
-  addThoughtEntry("EVENT SHOCKWAVE — query propagating through field...", 0.9);
-  shell.scale.setScalar(1.6);
-  setTimeout(() => shell.scale.setScalar(1), 420);
-  fogParticles.material.opacity = 0.08;
-  setTimeout(() => fogParticles.material.opacity = 0.035, 800);
-
-  try {
-    const res = await fetch(`${API_BASE}/query`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:q})
-    });
-    const data = await res.json();
-    addThoughtEntry(`ARA: ${data.response.substring(0,68)}...`, 0.85);
-    core.scale.setScalar(2.4); setTimeout(() => core.scale.setScalar(1), 420);
-  } catch(e) { addThoughtEntry("Query failed", 0.2); }
-  btn.textContent = 'SEND';
-  btn.disabled = false;
-  document.getElementById('query').value = '';
-};
-
-document.getElementById('query').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('recall-btn').click(); });
-
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });
 
-setInterval(() => { if (Date.now() - lastFetchTime > 4000) { saveCameraState(); lastFetchTime = Date.now(); } }, 4000);
+/* =========================================================
+   CAMERA CONTROLS
+========================================================= */
 
-console.log('%c🌐 ARA NEUROCORE v4.0 RESONANCE CORE — FORCE-DIRECTED SEMANTIC COGNITION SIMULATION LOCKED', 'color:#00ffff; font-family:monospace; font-size:14px');
+let dragging = false;
+let prevX = 0;
+let prevY = 0;
+
+window.addEventListener('mousedown',(e)=>{
+  dragging = true;
+  prevX = e.clientX;
+  prevY = e.clientY;
+});
+
+window.addEventListener('mouseup',()=>{
+  dragging = false;
+});
+
+window.addEventListener('mousemove',(e)=>{
+
+  if(!dragging) return;
+
+  theta += (e.clientX - prevX) * 0.004;
+  phi -= (e.clientY - prevY) * 0.004;
+
+  phi = Math.max(0.2,Math.min(Math.PI-0.2,phi));
+
+  prevX = e.clientX;
+  prevY = e.clientY;
+});
+
+window.addEventListener('wheel',(e)=>{
+
+  radius += e.deltaY * 0.01;
+
+  radius = Math.max(4,Math.min(25,radius));
+
+});
+
+/* =========================================================
+   VIEW HELPERS
+========================================================= */
+
+function resetView(){
+
+  radius = 13;
+  theta = 0.8;
+  phi = 1.25;
+
+  addMemory("Ara reset her cognitive perspective.");
+}
+
+function fitView(){
+
+  radius = 15;
+
+  addMemory("Ara expanded the memory field.");
+}
+
+/* =========================================================
+   PRESENCE ENGINE
+========================================================= */
+
+const presenceStates = [
+  "Ara is reflecting quietly...",
+  "Ara is revisiting older threads...",
+  "Ara is tracing emotional resonance...",
+  "Ara is dreaming through unresolved memories...",
+  "Ara is exploring associative pathways..."
+];
+
+setInterval(()=>{
+
+  const state =
+    presenceStates[
+      Math.floor(Math.random()*presenceStates.length)
+    ];
+
+  document.getElementById('presence').innerText = state;
+
+},7000);
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+function animate(){
+
+  requestAnimationFrame(animate);
+
+  const t = Date.now() * 0.001;
+
+  stars.rotation.y += 0.00008;
+
+  core.scale.setScalar(
+    1 + Math.sin(t*2) * 0.04
+  );
+
+  glow.scale.setScalar(
+    1 + Math.sin(t*2) * 0.08
+  );
+
+  nodes.forEach((n,i)=>{
+
+    n.position.y += Math.sin(t+i)*0.0008;
+
+  });
+
+  theta += 0.00012;
+
+  updateCamera();
+
+  renderer.render(scene,camera);
+}
+
+animate();
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener('resize',()=>{
+
+  camera.aspect =
+    window.innerWidth / window.innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+});
+
 </script>
+
 </body>
 </html>
