@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARA • Cognitive Interface</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <style>
@@ -18,277 +18,114 @@
   --text:#e6f7ff;
   --muted:#64748b;
 }
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
 body{
   overflow:hidden;
-  background:
-    radial-gradient(circle at top, rgba(103,232,249,0.08), transparent 40%),
-    linear-gradient(145deg,#050816 0%,#0b1020 100%);
+  background:radial-gradient(circle at top, rgba(103,232,249,0.08), transparent 40%), linear-gradient(145deg,#050816 0%,#0b1020 100%);
   color:var(--text);
   font-family:'Inter',sans-serif;
 }
 body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(103,232,249,0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(103,232,249,0.018) 1px, transparent 1px);
+  content:'';position:fixed;inset:0;
+  background:linear-gradient(rgba(103,232,249,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,0.018) 1px, transparent 1px);
   background-size:48px 48px;
   animation:gridDrift 40s linear infinite;
   pointer-events:none;
   z-index:0;
 }
-@keyframes gridDrift{
-  0%{background-position:0 0;}
-  100%{background-position:48px 48px;}
-}
-#c{
-  position:fixed;
-  inset:0;
-  z-index:1;
-}
+@keyframes gridDrift{0%{background-position:0 0;}100%{background-position:48px 48px;}}
+#c{position:fixed;inset:0;z-index:1;}
 .glass{
   background:var(--bg-panel);
   backdrop-filter:blur(24px);
   border:1px solid var(--border);
-  box-shadow:
-    0 10px 45px rgba(0,0,0,0.5),
-    0 0 80px rgba(103,232,249,0.03);
+  box-shadow:0 10px 45px rgba(0,0,0,0.5), 0 0 80px rgba(103,232,249,0.03);
 }
-/* =========================
-   TOP NAV
-========================= */
 #top-nav{
-  position:fixed;
-  top:14px;
-  left:50%;
-  transform:translateX(-50%);
-  width:95%;
-  max-width:1280px;
-  height:64px;
-  border-radius:999px;
-  z-index:50;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 24px;
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  width:95%;max-width:1280px;height:64px;border-radius:999px;
+  z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 24px;
 }
-.brand{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
+.brand{display:flex;align-items:center;gap:14px;}
 .brand-logo{
-  width:36px;
-  height:36px;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;
   background:linear-gradient(135deg,var(--ara-cyan),var(--ara-blue));
-  color:#051018;
-  font-weight:700;
-  font-family:'Space Grotesk',sans-serif;
+  color:#051018;font-weight:700;font-family:'Space Grotesk',sans-serif;
   box-shadow:0 0 30px rgba(103,232,249,0.4);
 }
-.brand-title{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:20px;
-  font-weight:600;
-  color:var(--ara-cyan);
-}
-.brand-sub{
-  font-size:9px;
-  letter-spacing:1.5px;
-  color:var(--muted);
-  margin-top:-2px;
-}
+.brand-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;color:var(--ara-cyan);}
+.brand-sub{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-top:-2px;}
 .status{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:5px 14px;
-  border-radius:999px;
-  background:rgba(103,232,249,0.08);
-  border:1px solid rgba(103,232,249,0.22);
-  font-size:11px;
+  display:flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;
+  background:rgba(103,232,249,0.08);border:1px solid rgba(103,232,249,0.22);font-size:11px;
 }
 .status-dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:var(--ara-cyan);
-  box-shadow:0 0 14px var(--ara-cyan);
-  animation:pulse 2s infinite;
+  width:7px;height:7px;border-radius:50%;background:var(--ara-cyan);
+  box-shadow:0 0 14px var(--ara-cyan);animation:pulse 2s infinite;
 }
-@keyframes pulse{
-  0%,100%{transform:scale(1);opacity:1;}
-  50%{transform:scale(.7);opacity:.6;}
-}
-/* =========================
-   PANELS
-========================= */
-.panel{
-  position:fixed;
-  border-radius:22px;
-  padding:18px;
-  z-index:20;
-}
-.section-title{
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:2px;
-  color:var(--muted);
-  margin-bottom:10px;
-}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(.7);opacity:.6;}}
+.panel{position:fixed;border-radius:22px;padding:18px;z-index:20;}
+.section-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
 #left-panel{left:18px;top:92px;width:285px;max-height:calc(100vh - 185px);overflow-y:auto;}
 #right-panel{right:18px;top:92px;width:250px;}
 #node-panel{right:18px;bottom:95px;width:280px;display:none;}
 #node-title{font-size:14px;line-height:1.5;margin-bottom:12px;}
 .node-meta{display:flex;gap:6px;flex-wrap:wrap;}
-.meta-pill{
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:10px;
-  background:rgba(103,232,249,0.08);
-  color:var(--ara-cyan);
-}
-/* =========================
-   MEMORY STREAM
-========================= */
+.meta-pill{padding:4px 8px;border-radius:999px;font-size:10px;background:rgba(103,232,249,0.08);color:var(--ara-cyan);}
 .memory-entry{
-  padding:10px 14px;
-  margin-bottom:8px;
-  border-left:2px solid var(--ara-cyan);
-  border-radius:0 10px 10px 0;
-  background:rgba(255,255,255,0.02);
-  transition:.2s ease;
-  cursor:pointer;
+  padding:10px 14px;margin-bottom:8px;border-left:2px solid var(--ara-cyan);
+  border-radius:0 10px 10px 0;background:rgba(255,255,255,0.02);
+  transition:.2s ease;cursor:pointer;
 }
-.memory-entry:hover{
-  transform:translateX(2px);
-  background:rgba(255,255,255,0.04);
-  border-left-color:white;
-}
+.memory-entry:hover{transform:translateX(2px);background:rgba(255,255,255,0.04);border-left-color:white;}
 .memory-time{font-size:9px;color:var(--muted);margin-bottom:4px;}
 .memory-text{font-size:12px;line-height:1.45;color:var(--text);}
-/* =========================
-   METRICS
-========================= */
-.metric{
-  display:flex;
-  justify-content:space-between;
-  padding:7px 0;
-  border-bottom:1px solid rgba(255,255,255,0.04);
-}
+.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .metric:last-child{border-bottom:none;}
 .metric-label{color:var(--muted);font-size:12px;}
 .metric-value{color:var(--ara-cyan);font-family:'Space Grotesk',sans-serif;font-weight:700;}
-/* =========================
-   QUERY
-========================= */
 #query-bar{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:95%;
-  max-width:720px;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:10px 14px 10px 22px;
-  z-index:40;
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  width:95%;max-width:720px;border-radius:999px;display:flex;align-items:center;
+  gap:12px;padding:10px 14px 10px 22px;z-index:40;
 }
-#query{
-  flex:1;
-  background:transparent;
-  border:none;
-  outline:none;
-  color:var(--text);
-  font-size:14px;
-  font-family:'Space Grotesk',sans-serif;
-}
+#query{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:14px;font-family:'Space Grotesk',sans-serif;}
 #query::placeholder{color:#4b5563;}
-/* =========================
-   BUTTONS
-========================= */
 .btn{
-  border:none;
-  outline:none;
-  padding:9px 18px;
-  border-radius:999px;
-  background:rgba(103,232,249,0.08);
-  border:1px solid rgba(103,232,249,0.22);
-  color:var(--ara-cyan);
-  font-size:11px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.18s ease;
+  border:none;outline:none;padding:9px 18px;border-radius:999px;
+  background:rgba(103,232,249,0.08);border:1px solid rgba(103,232,249,0.22);
+  color:var(--ara-cyan);font-size:11px;font-weight:600;cursor:pointer;transition:.18s ease;
 }
-.btn:hover{
-  background:var(--ara-cyan);
-  color:#041018;
-  transform:translateY(-1px);
-  box-shadow:0 0 24px rgba(103,232,249,0.35);
-}
-/* =========================
-   PRESENCE
-========================= */
+.btn:hover{background:var(--ara-cyan);color:#041018;transform:translateY(-1px);box-shadow:0 0 24px rgba(103,232,249,0.35);}
 #presence{
-  position:fixed;
-  left:50%;
-  transform:translateX(-50%);
-  top:92px;
-  z-index:15;
-  padding:8px 16px;
-  border-radius:999px;
-  font-size:11px;
-  color:var(--ara-soft);
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(103,232,249,0.08);
-  backdrop-filter:blur(18px);
+  position:fixed;left:50%;transform:translateX(-50%);top:92px;z-index:15;
+  padding:8px 16px;border-radius:999px;font-size:11px;color:var(--ara-soft);
+  background:rgba(255,255,255,0.03);border:1px solid rgba(103,232,249,0.08);backdrop-filter:blur(18px);
 }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 
-<!-- NAV -->
 <div id="top-nav" class="glass">
   <div class="brand">
     <div class="brand-logo">A</div>
-    <div>
-      <div class="brand-title">ARA</div>
-      <div class="brand-sub">COGNITIVE INTERFACE</div>
-    </div>
+    <div><div class="brand-title">ARA</div><div class="brand-sub">COGNITIVE INTERFACE</div></div>
   </div>
-  <div class="status">
-    <div class="status-dot"></div>
-    <span>ACTIVE MEMORY FIELD</span>
-  </div>
-  <div style="display:flex; gap:8px;">
+  <div class="status"><div class="status-dot"></div><span>ACTIVE MEMORY FIELD</span></div>
+  <div style="display:flex;gap:8px;">
     <button class="btn" onclick="fitView()">FIT</button>
     <button class="btn" onclick="resetView()">RESET</button>
   </div>
 </div>
 
-<!-- PRESENCE -->
 <div id="presence">Ara is reflecting quietly...</div>
 
-<!-- LEFT -->
 <div id="left-panel" class="panel glass">
   <div class="section-title">Reflection Stream</div>
   <div id="memory-log"></div>
 </div>
 
-<!-- RIGHT -->
 <div id="right-panel" class="panel glass">
   <div class="section-title">Cognitive Metrics</div>
   <div class="metric"><div class="metric-label">Memories</div><div class="metric-value" id="metric-memories">0</div></div>
@@ -297,14 +134,12 @@ body::before{
   <div class="metric"><div class="metric-label">Emotional Resonance</div><div class="metric-value">0.91</div></div>
 </div>
 
-<!-- NODE PANEL -->
 <div id="node-panel" class="panel glass">
   <div class="section-title">Memory Reflection</div>
   <div id="node-title"></div>
   <div class="node-meta" id="node-meta"></div>
 </div>
 
-<!-- QUERY -->
 <div id="query-bar" class="glass">
   <span style="font-size:11px;color:var(--muted);font-weight:600;">ARA&gt;</span>
   <input id="query" placeholder="What are you thinking about?" />
@@ -317,11 +152,7 @@ body::before{
 ========================================================= */
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.getElementById('c'),
-  antialias: true,
-  alpha: true
-});
+const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias:true, alpha:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputEncoding = THREE.sRGBEncoding;
@@ -329,63 +160,47 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 
 /* =========================================================
-   CAMERA
+   CAMERA + STARFIELD + CORE
 ========================================================= */
-let radius = 13;
-let theta = 0.8;
-let phi = 1.25;
+let radius = 13, theta = 0.8, phi = 1.25;
 function updateCamera(){
-  camera.position.x = radius * Math.sin(phi) * Math.cos(theta);
-  camera.position.y = radius * Math.cos(phi);
-  camera.position.z = radius * Math.sin(phi) * Math.sin(theta);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(
+    radius * Math.sin(phi) * Math.cos(theta),
+    radius * Math.cos(phi),
+    radius * Math.sin(phi) * Math.sin(theta)
+  );
+  camera.lookAt(0,0,0);
 }
 updateCamera();
 
-/* =========================================================
-   STARFIELD + CORE
-========================================================= */
 const starsGeo = new THREE.BufferGeometry();
 let verts = [];
-for(let i = 0; i < 1600; i++){
-  verts.push((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80);
-}
-starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0x67e8f9, size: 0.035, transparent: true, opacity: 0.7 }));
-scene.add(stars);
+for(let i=0;i<1600;i++) verts.push((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80);
+starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts,3));
+scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({color:0x67e8f9,size:0.035,transparent:true,opacity:0.7})));
 
-const core = new THREE.Mesh(new THREE.SphereGeometry(0.8, 48, 48), new THREE.MeshBasicMaterial({ color: 0x67e8f9 }));
-scene.add(core);
-const glow = new THREE.Mesh(new THREE.SphereGeometry(1.4, 48, 48), new THREE.MeshBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.08 }));
-scene.add(glow);
+const core = new THREE.Mesh(new THREE.SphereGeometry(0.8,48,48), new THREE.MeshBasicMaterial({color:0x67e8f9}));
+const glow = new THREE.Mesh(new THREE.SphereGeometry(1.4,48,48), new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.08}));
+scene.add(core); scene.add(glow);
 
 /* =========================================================
-   MEMORY NODES & LINES
+   NODES & LINES
 ========================================================= */
-let nodes = [];
-let lines = [];
-
-function createNode(x, y, z, text){
-  const mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(0.11, 18, 18),
-    new THREE.MeshBasicMaterial({ color: 0x7dd3fc })
-  );
-  mesh.position.set(x, y, z);
-  mesh.userData = { content: text, originalY: y };
-  scene.add(mesh);
-  nodes.push(mesh);
-  return mesh;
+let nodes = [], lines = [];
+function createNode(x,y,z,text){
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.11,18,18), new THREE.MeshBasicMaterial({color:0x7dd3fc}));
+  mesh.position.set(x,y,z);
+  mesh.userData = {content:text, originalY:y};
+  scene.add(mesh); nodes.push(mesh); return mesh;
 }
-
 function clearGraph(){
-  nodes.forEach(n => scene.remove(n));
-  lines.forEach(l => scene.remove(l));
-  nodes = [];
-  lines = [];
+  nodes.forEach(n=>scene.remove(n));
+  lines.forEach(l=>scene.remove(l));
+  nodes = []; lines = [];
 }
 
 /* =========================================================
-   LOAD MEMORY GRAPH (Vercel + full validation)
+   LOAD MEMORY GRAPH (Vercel)
 ========================================================= */
 async function loadMemoryGraph(){
   try{
@@ -396,34 +211,24 @@ async function loadMemoryGraph(){
     if(!Array.isArray(memories)) throw new Error("Invalid memory graph format");
 
     console.log("Loaded memories:", memories.length);
+    memories.sort((a,b)=>(b.importance||0.5)-(a.importance||0.5));
 
-    memories.sort((a,b) => (b.importance || 0.5) - (a.importance || 0.5));
+    memories.forEach(mem=>{
+      const importance = mem.importance||0.5;
+      const strength = mem.strength||0.5;
+      const resonance = mem.resonance||0.5;
 
-    memories.forEach(mem => {
-      const importance = mem.importance || 0.5;
-      const strength   = mem.strength   || 0.5;   // ← now explicitly read
-      const resonance  = mem.resonance  || 0.5;
+      const radius = 1.5 + (1-importance)*7;
+      const spawnTheta = Math.random()*Math.PI*2;
+      const spawnPhi = Math.acos((Math.random()*2)-1);
 
-      const radius = 1.5 + ((1 - importance) * 7);
-      const spawnTheta = Math.random() * Math.PI * 2;
-      const spawnPhi   = Math.acos((Math.random() * 2) - 1);
+      const x = radius*Math.sin(spawnPhi)*Math.cos(spawnTheta);
+      const y = radius*Math.cos(spawnPhi);
+      const z = radius*Math.sin(spawnPhi)*Math.sin(spawnTheta);
 
-      const x = radius * Math.sin(spawnPhi) * Math.cos(spawnTheta);
-      const y = radius * Math.cos(spawnPhi);
-      const z = radius * Math.sin(spawnPhi) * Math.sin(spawnTheta);
-
-      const node = createNode(x, y, z, mem.content || "Unknown Memory");
-
-      const scale = 0.6 + importance * 2.4;
-      node.scale.setScalar(scale);
-
-      // Richer color using all three metrics
-      node.material.color.setRGB(
-        0.4 + resonance * 0.6,
-        0.75 + importance * 0.25,
-        0.8 + strength * 0.2
-      );
-
+      const node = createNode(x,y,z,mem.content||"Unknown Memory");
+      node.scale.setScalar(0.6 + importance*2.4);
+      node.material.color.setRGB(0.4+resonance*0.6, 0.75+importance*0.25, 0.8+strength*0.2);
       node.userData.memory = mem;
     });
 
@@ -431,7 +236,7 @@ async function loadMemoryGraph(){
 
     document.getElementById('metric-memories').innerText = memories.length;
     document.getElementById('metric-connections').innerText = lines.length;
-    document.getElementById('metric-active').innerText = Math.floor(memories.length * 0.35);
+    document.getElementById('metric-active').innerText = Math.floor(memories.length*0.35);
 
     addMemory(`NeuroCore loaded ${memories.length} memories.`);
   }catch(err){
@@ -440,237 +245,157 @@ async function loadMemoryGraph(){
   }
 }
 
-/* =========================================================
-   CONNECTIONS (unique + dynamic)
-========================================================= */
 function createConnections(){
-  const madeConnections = new Set();
-  for(let i = 0; i < nodes.length; i++){
+  const made = new Set();
+  for(let i=0;i<nodes.length;i++){
     const a = nodes[i];
     const nearby = [];
-    for(let j = 0; j < nodes.length; j++){
-      if(i === j) continue;
+    for(let j=0;j<nodes.length;j++){
+      if(i===j) continue;
       const b = nodes[j];
       const dist = a.position.distanceTo(b.position);
-      if(dist < 3.5) nearby.push({node: b, dist, index: j});
+      if(dist<3.5) nearby.push({node:b,dist,index:j});
     }
-    nearby.sort((x,y) => x.dist - y.dist);
-    nearby.slice(0,3).forEach(n => {
-      const key = [i, n.index].sort().join('-');
-      if(madeConnections.has(key)) return;
-      madeConnections.add(key);
-
-      const geometry = new THREE.BufferGeometry().setFromPoints([a.position, n.node.position]);
+    nearby.sort((x,y)=>x.dist-y.dist);
+    nearby.slice(0,3).forEach(n=>{
+      const key = [i,n.index].sort().join('-');
+      if(made.has(key)) return;
+      made.add(key);
       const line = new THREE.Line(
-        geometry,
-        new THREE.LineBasicMaterial({
-          color: 0x67e8f9,
-          transparent: true,
-          opacity: 0.12,
-          blending: THREE.AdditiveBlending
-        })
+        new THREE.BufferGeometry().setFromPoints([a.position,n.node.position]),
+        new THREE.LineBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.12,blending:THREE.AdditiveBlending})
       );
-      line.userData = { a, b: n.node };
-      scene.add(line);
-      lines.push(line);
+      line.userData = {a,b:n.node};
+      scene.add(line); lines.push(line);
     });
   }
 }
 
 /* =========================================================
-   START
+   START + UI
 ========================================================= */
 loadMemoryGraph();
 
-/* =========================================================
-   MEMORY LOG
-========================================================= */
 function addMemory(text){
   const log = document.getElementById('memory-log');
   const div = document.createElement('div');
   div.className = 'memory-entry';
-  div.innerHTML = `
-    <div class="memory-time">${new Date().toLocaleTimeString()}</div>
-    <div class="memory-text">${text}</div>
-  `;
+  div.innerHTML = `<div class="memory-time">${new Date().toLocaleTimeString()}</div><div class="memory-text">${text}</div>`;
   log.appendChild(div);
-  if(log.children.length > 8) log.removeChild(log.firstChild);
+  if(log.children.length>8) log.removeChild(log.firstChild);
   log.scrollTop = log.scrollHeight;
 }
-
 addMemory("Ara initialized successfully.");
 addMemory("Memory field synchronized.");
 addMemory("DreamCore connection stable.");
 
-/* =========================================================
-   QUERY
-========================================================= */
 function sendQuery(){
   const input = document.getElementById('query');
   if(!input.value.trim()) return;
   addMemory(`You asked: "${input.value}"`);
-  setTimeout(() => {
-    addMemory("Ara is tracing associative memory pathways...");
-  }, 700);
+  setTimeout(()=>addMemory("Ara is tracing associative memory pathways..."),700);
   input.value = '';
 }
 
 /* =========================================================
-   NODE INTERACTION (ignore UI panels)
+   INTERACTION + CONTROLS
 ========================================================= */
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-
-window.addEventListener('click', e => {
-  if(e.target.closest('.panel') || e.target.closest('#query-bar') || e.target.closest('#top-nav')) return;
-
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
+window.addEventListener('click',e=>{
+  if(e.target.closest('.panel')||e.target.closest('#query-bar')||e.target.closest('#top-nav')) return;
+  mouse.x = (e.clientX/window.innerWidth)*2-1;
+  mouse.y = -(e.clientY/window.innerHeight)*2+1;
+  raycaster.setFromCamera(mouse,camera);
   const hits = raycaster.intersectObjects(nodes);
   if(hits.length){
     const node = hits[0].object;
     document.getElementById('node-panel').style.display = 'block';
-
-    const mem = node.userData.memory || {};
-    document.getElementById('node-title').innerText = mem.content || node.userData.content;
-
+    const mem = node.userData.memory||{};
+    document.getElementById('node-title').innerText = mem.content||node.userData.content;
     document.getElementById('node-meta').innerHTML = `
-      <div class="meta-pill">Importance: ${(mem.importance || 0.5).toFixed(2)}</div>
-      <div class="meta-pill">Strength: ${(mem.strength || 0.5).toFixed(2)}</div>
-      <div class="meta-pill">Resonance: ${(mem.resonance || 0.5).toFixed(2)}</div>
+      <div class="meta-pill">Importance: ${(mem.importance||0.5).toFixed(2)}</div>
+      <div class="meta-pill">Strength: ${(mem.strength||0.5).toFixed(2)}</div>
+      <div class="meta-pill">Resonance: ${(mem.resonance||0.5).toFixed(2)}</div>
     `;
-
-    const originalScale = node.scale.x;
-    node.scale.setScalar(originalScale * 1.6);
-    setTimeout(() => node.scale.setScalar(originalScale), 300);
+    const s = node.scale.x;
+    node.scale.setScalar(s*1.6);
+    setTimeout(()=>node.scale.setScalar(s),300);
   }
 });
 
-/* =========================================================
-   CAMERA CONTROLS (mouse + full touch)
-========================================================= */
-let dragging = false;
-let prevX = 0;
-let prevY = 0;
-
-window.addEventListener('mousedown', e => { dragging = true; prevX = e.clientX; prevY = e.clientY; });
-window.addEventListener('mouseup', () => dragging = false);
-window.addEventListener('mousemove', e => {
+let dragging = false, prevX=0, prevY=0;
+window.addEventListener('mousedown',e=>{dragging=true;prevX=e.clientX;prevY=e.clientY;});
+window.addEventListener('mouseup',()=>{dragging=false;});
+window.addEventListener('mousemove',e=>{
   if(!dragging) return;
-  theta += (e.clientX - prevX) * 0.004;
-  phi -= (e.clientY - prevY) * 0.004;
-  phi = Math.max(0.2, Math.min(Math.PI - 0.2, phi));
+  theta += (e.clientX-prevX)*0.004;
+  phi -= (e.clientY-prevY)*0.004;
+  phi = Math.max(0.2,Math.min(Math.PI-0.2,phi));
   prevX = e.clientX; prevY = e.clientY;
 });
-
-/* Mobile touch */
-window.addEventListener('touchstart', e => {
-  if(e.touches.length === 1){
-    dragging = true;
-    prevX = e.touches[0].clientX;
-    prevY = e.touches[0].clientY;
-  }
-});
-window.addEventListener('touchend', () => { dragging = false; window.lastPinchDist = null; });
-window.addEventListener('touchmove', e => {
-  if(e.touches.length === 1 && dragging){
-    theta += (e.touches[0].clientX - prevX) * 0.004;
-    phi -= (e.touches[0].clientY - prevY) * 0.004;
-    phi = Math.max(0.2, Math.min(Math.PI - 0.2, phi));
-    prevX = e.touches[0].clientX;
-    prevY = e.touches[0].clientY;
-  }
-  else if(e.touches.length === 2){
+/* mobile touch */
+window.addEventListener('touchstart',e=>{if(e.touches.length===1){dragging=true;prevX=e.touches[0].clientX;prevY=e.touches[0].clientY;}});
+window.addEventListener('touchend',()=>{dragging=false;window.lastPinchDist=null;});
+window.addEventListener('touchmove',e=>{
+  if(e.touches.length===1&&dragging){
+    theta += (e.touches[0].clientX-prevX)*0.004;
+    phi -= (e.touches[0].clientY-prevY)*0.004;
+    phi = Math.max(0.2,Math.min(Math.PI-0.2,phi));
+    prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
+  } else if(e.touches.length===2){
     const dx = e.touches[0].clientX - e.touches[1].clientX;
     const dy = e.touches[0].clientY - e.touches[1].clientY;
     const dist = Math.sqrt(dx*dx + dy*dy);
     if(window.lastPinchDist){
-      radius += (window.lastPinchDist - dist) * 0.03;
-      radius = Math.max(4, Math.min(25, radius));
+      radius += (window.lastPinchDist - dist)*0.03;
+      radius = Math.max(4,Math.min(25,radius));
     }
     window.lastPinchDist = dist;
   }
 });
-
-window.addEventListener('wheel', e => {
-  radius += e.deltaY * 0.01;
-  radius = Math.max(4, Math.min(25, radius));
+window.addEventListener('wheel',e=>{
+  radius += e.deltaY*0.01;
+  radius = Math.max(4,Math.min(25,radius));
 });
 
-/* =========================================================
-   VIEW HELPERS
-========================================================= */
-function resetView(){
-  radius = 13; theta = 0.8; phi = 1.25;
-  addMemory("Ara reset her cognitive perspective.");
-}
-function fitView(){
-  radius = 15;
-  addMemory("Ara expanded the memory field.");
-}
+function resetView(){radius=13;theta=0.8;phi=1.25;addMemory("Ara reset her cognitive perspective.");}
+function fitView(){radius=15;addMemory("Ara expanded the memory field.");}
 
-/* =========================================================
-   PRESENCE ENGINE
-========================================================= */
-const presenceStates = [
-  "Ara is reflecting quietly...",
-  "Ara is revisiting older threads...",
-  "Ara is tracing emotional resonance...",
-  "Ara is dreaming through unresolved memories...",
-  "Ara is exploring associative pathways..."
-];
-setInterval(() => {
-  const state = presenceStates[Math.floor(Math.random() * presenceStates.length)];
-  document.getElementById('presence').innerText = state;
-}, 7000);
+const presenceStates = ["Ara is reflecting quietly...","Ara is revisiting older threads...","Ara is tracing emotional resonance...","Ara is dreaming through unresolved memories...","Ara is exploring associative pathways..."];
+setInterval(()=>{document.getElementById('presence').innerText = presenceStates[Math.floor(Math.random()*presenceStates.length)];},7000);
 
 /* =========================================================
    ANIMATION
 ========================================================= */
 function animate(){
   requestAnimationFrame(animate);
-  const t = Date.now() * 0.001;
-
+  const t = Date.now()*0.001;
   stars.rotation.y += 0.00008;
-  core.scale.setScalar(1 + Math.sin(t*2) * 0.04);
-  glow.scale.setScalar(1 + Math.sin(t*2) * 0.08);
-  glow.material.opacity = 0.05 + Math.sin(t*2) * 0.02;
+  core.scale.setScalar(1 + Math.sin(t*2)*0.04);
+  glow.scale.setScalar(1 + Math.sin(t*2)*0.08);
+  glow.material.opacity = 0.05 + Math.sin(t*2)*0.02;
 
-  // Gentle harmonic bob
-  nodes.forEach((n,i) => {
-    n.position.y = n.userData.originalY + Math.sin(t + i) * 0.018;
-  });
-
+  nodes.forEach((n,i)=>{n.position.y = n.userData.originalY + Math.sin(t+i)*0.018;});
   theta += 0.00012;
   updateCamera();
 
-  // Dynamic line updates + safe opacity
-  lines.forEach((line,i) => {
-    const positions = line.geometry.attributes.position.array;
-    positions[0] = line.userData.a.position.x;
-    positions[1] = line.userData.a.position.y;
-    positions[2] = line.userData.a.position.z;
-    positions[3] = line.userData.b.position.x;
-    positions[4] = line.userData.b.position.y;
-    positions[5] = line.userData.b.position.z;
+  lines.forEach((line,i)=>{
+    const p = line.geometry.attributes.position.array;
+    p[0]=line.userData.a.position.x; p[1]=line.userData.a.position.y; p[2]=line.userData.a.position.z;
+    p[3]=line.userData.b.position.x; p[4]=line.userData.b.position.y; p[5]=line.userData.b.position.z;
     line.geometry.attributes.position.needsUpdate = true;
-
-    const pulse = 0.08 + Math.sin(t * 1.5 + i) * 0.10;
-    line.material.opacity = Math.max(0.04, Math.min(0.18, pulse));
+    line.material.opacity = Math.max(0.04, Math.min(0.18, 0.08 + Math.sin(t*1.5 + i)*0.10));
   });
 
-  renderer.render(scene, camera);
+  renderer.render(scene,camera);
 }
 animate();
 
-/* =========================================================
-   RESIZE
-========================================================= */
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+window.addEventListener('resize',()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(window.innerWidth,window.innerHeight);
 });
 </script>
 </body>
