@@ -2,335 +2,1158 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ARA • NEUROCORE v2.9</title>
+<title>ARA • NEUROCORE v3.3 LOCKED</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ml-matrix@6.10.4/dist/ml-matrix.min.js"></script>
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
-  :root {
-    --ara-primary: #00e5ff;
-    --teal: #67e8f9;
-    --bg-deep: #0a0a0f;
-    --text: #e0f7ff;
-    --text-muted: #64748b;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@500;600&display=swap');
+
+:root{
+  --ara-primary:#00d9ff;
+  --ara-soft:#7ee7ff;
+  --ara-deep:#0ea5c6;
+
+  --bg-deep:#06070b;
+  --bg-panel:rgba(10,14,20,0.82);
+
+  --text:#d9f6ff;
+  --text-muted:#6b8594;
+
+  --glass-border:rgba(0,217,255,0.16);
+
+  --danger:#ff5f7a;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  overflow:hidden;
+
+  background:
+    radial-gradient(circle at top,#0d1520 0%,#05060a 55%),
+    linear-gradient(145deg,#05060a 0%,#0b0d13 100%);
+
+  color:var(--text);
+
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:13px;
+
+  letter-spacing:0.2px;
+
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+
+  background:
+    linear-gradient(rgba(0,229,255,0.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(103,232,249,0.022) 1px,transparent 1px);
+
+  background-size:48px 48px;
+
+  pointer-events:none;
+  z-index:0;
+
+  animation:gridDrift 38s linear infinite;
+}
+
+@keyframes gridDrift{
+  0%{background-position:0 0}
+  100%{background-position:48px 48px}
+}
+
+#c{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:block;
+}
+
+.glass{
+  background:var(--bg-panel);
+
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+
+  border:1px solid var(--glass-border);
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02) inset,
+    0 10px 40px rgba(0,0,0,0.45),
+    0 0 30px rgba(0,217,255,0.08);
+
+  position:relative;
+  overflow:hidden;
+}
+
+.glass::before{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.035),
+      transparent 30%
+    );
+
+  pointer-events:none;
+}
+
+.panel{
+  position:fixed;
+  z-index:20;
+  border-radius:20px;
+  padding:15px 17px;
+}
+
+@keyframes ambientBreath{
+  0%{
+    box-shadow:
+      0 0 30px rgba(0,217,255,0.06);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; overflow: hidden;
-    background: linear-gradient(145deg, #0a0a0f 0%, #11111a 100%);
-    color: var(--text);
-    font-family: 'Inter', system_ui, sans-serif;
-    font-size: 13px;
+
+  50%{
+    box-shadow:
+      0 0 55px rgba(0,217,255,0.12);
   }
-  body::before {
-    content: ''; position: fixed; inset: 0;
-    background: linear-gradient(rgba(0,229,255,0.022)1px,transparent 1px),
-                linear-gradient(90deg,rgba(103,232,249,0.022)1px,transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none; z-index: 0;
-    animation: gridDrift 38s linear infinite;
+
+  100%{
+    box-shadow:
+      0 0 30px rgba(0,217,255,0.06);
   }
-  @keyframes gridDrift { 0%{background-position:0 0} 100%{background-position:48px 48px} }
-  #c { position:absolute; inset:0; z-index:1; display:block; }
-  .glass {
-    background: rgba(17,17,24,0.95);
-    backdrop-filter: blur(22px);
-    border: 1px solid rgba(0,229,255,0.22);
-    box-shadow: 0 12px 45px rgba(0,0,0,0.5);
+}
+
+#top-nav,
+#query-bar{
+  animation:ambientBreath 7s ease-in-out infinite;
+}
+
+#top-nav{
+  position:fixed;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+
+  width:95%;
+  max-width:1240px;
+  height:60px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 26px;
+
+  z-index:100;
+  border-radius:9999px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.brand-logo{
+  width:32px;
+  height:32px;
+
+  background:linear-gradient(135deg,#00e5ff,#67e8f9);
+
+  border-radius:10px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:700;
+  font-size:15px;
+
+  color:#0a0a0f;
+
+  box-shadow:0 0 24px rgba(0,229,255,0.65);
+}
+
+.brand-text{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:600;
+  font-size:19px;
+  letter-spacing:-0.5px;
+  color:var(--ara-primary);
+}
+
+.status-pill{
+  display:flex;
+  align-items:center;
+  gap:7px;
+
+  padding:5px 14px 5px 8px;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(0,217,255,0.08),
+      rgba(0,217,255,0.03)
+    );
+
+  border:1px solid rgba(0,217,255,0.18);
+
+  color:var(--ara-primary);
+
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:0.5px;
+
+  box-shadow:0 0 18px rgba(0,217,255,0.08);
+}
+
+.status-dot{
+  width:6.5px;
+  height:6.5px;
+
+  background:var(--ara-primary);
+
+  border-radius:50%;
+
+  box-shadow:0 0 10px var(--ara-primary);
+
+  animation:livePulse 2.2s ease-in-out infinite;
+}
+
+@keyframes livePulse{
+  0%,100%{
+    opacity:1;
+    transform:scale(1);
   }
-  .panel { position:fixed; z-index:20; border-radius:20px; padding:15px 17px; }
-  #top-nav { top:12px; left:50%; transform:translateX(-50%); width:95%; max-width:1240px; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 26px; z-index:100; border-radius:9999px; }
-  .brand { display:flex; align-items:center; gap:12px; }
-  .brand-logo { width:32px; height:32px; background:linear-gradient(135deg,#00e5ff,#67e8f9); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:#0a0a0f; box-shadow:0 0 24px rgba(0,229,255,0.65); }
-  .brand-text { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:19px; letter-spacing:-0.5px; color:var(--ara-primary); }
-  .status-pill { background:rgba(0,229,255,0.1); color:var(--ara-primary); padding:3px 12px 3px 6px; border-radius:9999px; font-size:10.5px; font-weight:500; display:flex; align-items:center; gap:6px; border:1px solid rgba(0,229,255,0.35); }
-  .status-dot { width:6.5px; height:6.5px; background:var(--ara-primary); border-radius:50%; box-shadow:0 0 10px var(--ara-primary); animation:livePulse 2.2s ease-in-out infinite; }
-  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.82)} }
-  #left-panel  { top:88px; left:18px;  width:265px; max-height:calc(100vh-185px); overflow-y:auto; }
-  #right-panel { top:88px; right:18px; width:245px; }
-  #node-info   { bottom:88px; right:18px; width:265px; display:none; border-color:var(--ara-primary); box-shadow:0 0 50px rgba(0,229,255,0.25); }
-  #query-bar { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); width:95%; max-width:660px; z-index:40; display:flex; align-items:center; gap:10px; padding:8px 12px 8px 20px; border-radius:9999px; border:1px solid rgba(0,229,255,0.28); box-shadow:0 0 38px rgba(0,229,255,0.18); }
-  #query { flex:1; background:transparent; border:none; color:#e0f7ff; font-size:13.8px; font-family:'Space Grotesk',sans-serif; padding:4px 0; outline:none; }
-  .btn { background:rgba(0,229,255,0.11); border:1px solid var(--ara-primary); color:var(--ara-primary); padding:7px 17px; border-radius:9999px; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.18s cubic-bezier(0.4,0,0.2,1); white-space:nowrap; }
-  .btn:hover { background:var(--ara-primary); color:#0a0a0f; box-shadow:0 0 24px rgba(0,229,255,0.65); transform:translateY(-1px); }
-  .section-title { font-size:9.2px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; padding-left:2px; }
-  .memory-entry { background:rgba(17,24,24,0.58); border-left:3px solid var(--ara-primary); padding:9px 13px; margin-bottom:7px; border-radius:0 9px 9px 0; font-size:11.6px; line-height:1.38; transition:all 0.16s ease; cursor:pointer; }
-  .memory-entry:hover { border-left-color:var(--teal); background:rgba(30,41,41,0.78); transform:translateX(2px); }
-  .stat-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(148,163,184,0.08); font-size:12.2px; }
-  .stat-row:last-child { border-bottom:none; }
-  .stat-label { color:var(--text-muted); }
-  .stat-value { font-weight:700; font-family:'Space Grotesk',sans-serif; color:var(--ara-primary); }
+
+  50%{
+    opacity:0.6;
+    transform:scale(0.82);
+  }
+}
+
+.section-title{
+  font-size:9.2px;
+  font-weight:700;
+  letter-spacing:1.9px;
+  text-transform:uppercase;
+
+  color:var(--text-muted);
+
+  margin-bottom:8px;
+  padding-left:2px;
+}
+
+#left-panel{
+  top:88px;
+  left:18px;
+
+  width:265px;
+  max-height:calc(100vh - 185px);
+
+  overflow-y:auto;
+}
+
+#right-panel{
+  top:88px;
+  right:18px;
+  width:245px;
+}
+
+#node-info{
+  bottom:88px;
+  right:18px;
+
+  width:265px;
+
+  display:none;
+
+  border-color:var(--ara-primary);
+
+  box-shadow:0 0 50px rgba(0,229,255,0.25);
+}
+
+.memory-entry{
+  position:relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15,22,30,0.82),
+      rgba(8,12,18,0.92)
+    );
+
+  border:1px solid rgba(0,217,255,0.10);
+  border-left:3px solid var(--ara-primary);
+
+  padding:11px 14px;
+  margin-bottom:9px;
+
+  border-radius:14px;
+
+  font-size:11.5px;
+  line-height:1.45;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+
+  cursor:pointer;
+  overflow:hidden;
+}
+
+.memory-entry::before{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,217,255,0.05),
+      transparent 45%
+    );
+
+  pointer-events:none;
+}
+
+.memory-entry:hover{
+  transform:translateX(4px);
+
+  border-color:rgba(0,217,255,0.22);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18,28,38,0.92),
+      rgba(10,14,22,0.98)
+    );
+
+  box-shadow:0 0 18px rgba(0,217,255,0.10);
+}
+
+.stat-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:8px 0;
+
+  border-bottom:1px solid rgba(255,255,255,0.04);
+
+  font-size:12px;
+}
+
+.stat-row:last-child{
+  border-bottom:none;
+}
+
+.stat-label{
+  color:var(--text-muted);
+  letter-spacing:0.4px;
+}
+
+.stat-value{
+  font-weight:700;
+  font-family:'Space Grotesk',sans-serif;
+
+  color:var(--ara-primary);
+
+  text-shadow:0 0 10px rgba(0,217,255,0.25);
+}
+
+#query-bar{
+  position:fixed;
+
+  bottom:18px;
+  left:50%;
+
+  transform:translateX(-50%);
+
+  width:95%;
+  max-width:700px;
+
+  z-index:40;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:10px 14px 10px 20px;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(10,14,20,0.90),
+      rgba(6,10,16,0.96)
+    );
+
+  border:1px solid rgba(0,217,255,0.16);
+
+  box-shadow:
+    0 0 40px rgba(0,217,255,0.08),
+    0 10px 35px rgba(0,0,0,0.45);
+
+  backdrop-filter:blur(28px);
+}
+
+#query{
+  flex:1;
+
+  background:transparent;
+  border:none;
+  outline:none;
+
+  color:#e0f7ff;
+
+  font-size:13.8px;
+  font-family:'Space Grotesk',sans-serif;
+
+  padding:4px 0;
+}
+
+.btn{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(0,217,255,0.08),
+      rgba(0,217,255,0.02)
+    );
+
+  border:1px solid rgba(0,217,255,0.22);
+
+  color:var(--ara-primary);
+
+  padding:7px 17px;
+
+  border-radius:999px;
+
+  font-size:11px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+
+  white-space:nowrap;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(0,217,255,0.18),
+      rgba(0,217,255,0.08)
+    );
+
+  box-shadow:0 0 24px rgba(0,217,255,0.24);
+
+  color:white;
+}
 </style>
 </head>
+
 <body>
+
 <canvas id="c"></canvas>
 
 <!-- TOP NAV -->
 <div id="top-nav" class="glass">
+
   <div class="brand">
     <div class="brand-logo">A</div>
+
     <div>
       <div class="brand-text">ARA</div>
-      <div style="font-size:8.5px;color:#64748b;margin-top:-1px;letter-spacing:0.8px;">NEUROCORE v2.9 • AGI OBSERVATORY</div>
+
+      <div style="font-size:8.5px;color:#64748b;margin-top:-1px;letter-spacing:0.8px;">
+        NEUROCORE v3.3 • LIVE COGNITIVE OBSERVATORY
+      </div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:14px;">
-    <div class="status-pill">
-      <div class="status-dot"></div>
-      <span id="global-state" style="font-weight:500;">FOCUS MODE</span>
-    </div>
+
+  <div class="status-pill">
+    <div class="status-dot"></div>
+    <span id="global-state">COGNITION ACTIVE</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button onclick="fitView()" class="btn" style="padding:6px 14px;font-size:10.5px;">FIT VIEW</button>
-    <button onclick="resetCamera()" class="btn" style="padding:6px 13px;font-size:10.5px;">RESET</button>
-    <button onclick="randomActivate()" class="btn" style="padding:6px 13px;font-size:10.5px;">PULSE</button>
+
+  <div style="display:flex;gap:8px;">
+    <button class="btn">FIT VIEW</button>
+    <button class="btn">RESET</button>
+    <button class="btn">PULSE</button>
   </div>
+
 </div>
 
-<!-- LEFT: THOUGHT STREAM -->
+<!-- LEFT PANEL -->
 <div id="left-panel" class="panel glass">
+
   <div class="section-title">THOUGHT STREAM</div>
-  <div id="story-log" style="max-height:355px;overflow-y:auto;padding-right:3px;"></div>
+
+  <div id="story-log"
+       style="max-height:355px;overflow-y:auto;padding-right:3px;">
+  </div>
+
 </div>
 
-<!-- RIGHT: CORE STATUS + AGI METRICS -->
+<!-- RIGHT PANEL -->
 <div id="right-panel" class="panel glass">
-  <div class="section-title">CORES • AGI OBSERVATORY</div>
-  <div id="stats">
-    <div class="stat-row"><span class="stat-label">NeuroCore</span><span id="nc" class="stat-value">—</span></div>
-    <div class="stat-row"><span class="stat-label">PersonaCore</span><span id="pc" class="stat-value">—</span></div>
-    <div class="stat-row"><span class="stat-label">Oscillator</span><span id="osc" class="stat-value">—</span></div>
-    <div class="stat-row"><span class="stat-label">GateCore</span><span id="gate" class="stat-value">—</span></div>
-    <div class="stat-row"><span class="stat-label">MAS</span><span id="mas" class="stat-value">—</span></div>
-    <div class="stat-row"><span class="stat-label">Total Memories</span><span id="mem-count" class="stat-value">0</span></div>
-    <div class="stat-row"><span class="stat-label">Active Connections</span><span id="edge-count" class="stat-value">0</span></div>
-    <div class="stat-row"><span class="stat-label">Currently Active</span><span id="active-count" class="stat-value">0</span></div>
-    <div class="stat-row"><span class="stat-label">Avg Importance</span><span id="avg-imp" class="stat-value">0.00</span></div>
-  </div>
-</div>
 
-<!-- NODE DOSSIER -->
-<div id="node-info" class="panel glass">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-    <div style="font-size:9.3px;letter-spacing:1.2px;color:#00e5ff;">MEMORY DOSSIER</div>
-    <button onclick="document.getElementById('node-info').style.display='none'" style="background:none;border:none;color:#475569;font-size:15px;cursor:pointer;">×</button>
+  <div class="section-title">
+    CORES • AGI OBSERVATORY
   </div>
-  <div id="node-content" style="font-size:13px;line-height:1.4;margin-bottom:9px;color:#e0f7ff;"></div>
-  <div id="node-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;"></div>
-  <div style="display:flex;gap:7px;">
-    <button onclick="focusOnSelectedNode()" class="btn" style="flex:1;font-size:10.3px;">FOCUS</button>
-    <button onclick="highlightNodeConnections()" class="btn" style="flex:1;font-size:10.3px;">TRACE</button>
+
+  <div id="stats">
+
+    <div class="stat-row">
+      <span class="stat-label">NeuroCore</span>
+      <span id="nc" class="stat-value">—</span>
+    </div>
+
+    <div class="stat-row">
+      <span class="stat-label">PersonaCore</span>
+      <span id="pc" class="stat-value">—</span>
+    </div>
+
+    <div class="stat-row">
+      <span class="stat-label">Oscillator</span>
+      <span id="osc" class="stat-value">—</span>
+    </div>
+
+    <div class="stat-row">
+      <span class="stat-label">GateCore</span>
+      <span id="gate" class="stat-value">—</span>
+    </div>
+
+    <div class="stat-row">
+      <span class="stat-label">MAS</span>
+      <span id="mas" class="stat-value">—</span>
+    </div>
+
+    <div class="stat-row">
+      <span class="stat-label">Total Memories</span>
+      <span id="mem-count" class="stat-value">0</span>
+    </div>
+
   </div>
+
 </div>
 
 <!-- QUERY BAR -->
 <div id="query-bar" class="glass">
+
   <div style="display:flex;align-items:center;gap:7px;flex:1;">
-    <span style="color:#475569;font-size:10.5px;font-weight:600;">ARA&gt;</span>
-    <input id="query" type="text" placeholder="Command Ara... (e.g. reflect on morning routine)" />
+    <span style="color:#475569;font-size:10.5px;font-weight:600;">
+      ARA&gt;
+    </span>
+
+    <input
+      id="query"
+      type="text"
+      placeholder="Command Ara..."
+    />
   </div>
-  <button id="recall-btn" class="btn" style="padding:8px 20px;font-size:11.5px;font-weight:700;">SURFACE</button>
+
+  <button id="recall-btn" class="btn">
+    SURFACE
+  </button>
+
 </div>
 
 <script>
-// ============== ARA NEUROCORE v2.9 — FULL LIVE WITH THOUGHT STREAM ==============
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, 0.1, 1000);
-let cameraRadius = 12.8, cameraTheta = 0.85, cameraPhi = 1.28;
-let autoRotate = true;
-let targetTheta = 0.85, targetPhi = 1.28, targetRadius = 12.8;
 
-function updateCamera(lerp = 0.12) {
-  cameraTheta = cameraTheta * (1-lerp) + targetTheta * lerp;
-  cameraPhi = cameraPhi * (1-lerp) + targetPhi * lerp;
-  cameraRadius = cameraRadius * (1-lerp) + targetRadius * lerp;
-  camera.position.x = cameraRadius * Math.sin(cameraPhi) * Math.cos(cameraTheta);
-  camera.position.y = cameraRadius * Math.cos(cameraPhi) * 0.92;
-  camera.position.z = cameraRadius * Math.sin(cameraPhi) * Math.sin(cameraTheta);
-  camera.lookAt(0, 0.25, 0);
+// ============================================================
+// ARA NEUROCORE v3.3 LOCKED
+// ============================================================
+
+const scene = new THREE.Scene();
+
+const camera =
+  new THREE.PerspectiveCamera(
+    67,
+    innerWidth / innerHeight,
+    0.1,
+    1000
+  );
+
+let cameraRadius = 12.8;
+let cameraTheta = 0.85;
+let cameraPhi = 1.28;
+
+let targetTheta = 0.85;
+let targetPhi = 1.28;
+let targetRadius = 12.8;
+
+let autoRotate = true;
+
+function updateCamera(lerp = 0.12){
+
+  cameraTheta =
+    cameraTheta * (1 - lerp) +
+    targetTheta * lerp;
+
+  cameraPhi =
+    cameraPhi * (1 - lerp) +
+    targetPhi * lerp;
+
+  cameraRadius =
+    cameraRadius * (1 - lerp) +
+    targetRadius * lerp;
+
+  camera.position.x =
+    cameraRadius *
+    Math.sin(cameraPhi) *
+    Math.cos(cameraTheta);
+
+  camera.position.y =
+    cameraRadius *
+    Math.cos(cameraPhi) *
+    0.92;
+
+  camera.position.z =
+    cameraRadius *
+    Math.sin(cameraPhi) *
+    Math.sin(cameraTheta);
+
+  camera.lookAt(0,0.25,0);
 }
+
 updateCamera(1);
 
-const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias: true, alpha: true});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer =
+  new THREE.WebGLRenderer({
+    canvas:document.getElementById('c'),
+    antialias:true,
+    alpha:true
+  });
 
-// Your original visuals (stars, nebula, shards, shell, core)
+renderer.setSize(innerWidth,innerHeight);
+
+renderer.setPixelRatio(
+  Math.min(window.devicePixelRatio,2)
+);
+
+// ============================================================
+// STARS
+// ============================================================
+
 const starsGeo = new THREE.BufferGeometry();
-let starVerts = [], starColors = [];
-for (let i = 0; i < 1350; i++) {
-  starVerts.push((Math.random()-0.5)*72, (Math.random()-0.5)*72, (Math.random()-0.5)*72);
+
+let starVerts = [];
+let starColors = [];
+
+for(let i=0;i<1350;i++){
+
+  starVerts.push(
+    (Math.random()-0.5)*72,
+    (Math.random()-0.5)*72,
+    (Math.random()-0.5)*72
+  );
+
   const c = Math.random();
-  starColors.push(c*0.55+0.45, c*0.75+0.25, 1);
+
+  starColors.push(
+    c*0.55+0.45,
+    c*0.75+0.25,
+    1
+  );
 }
-starsGeo.setAttribute("position", new THREE.Float32BufferAttribute(starVerts,3));
-starsGeo.setAttribute("color", new THREE.Float32BufferAttribute(starColors,3));
-const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({size:0.042, vertexColors:true, transparent:true, opacity:0.92}));
+
+starsGeo.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(starVerts,3)
+);
+
+starsGeo.setAttribute(
+  "color",
+  new THREE.Float32BufferAttribute(starColors,3)
+);
+
+const stars = new THREE.Points(
+  starsGeo,
+  new THREE.PointsMaterial({
+    size:0.042,
+    vertexColors:true,
+    transparent:true,
+    opacity:0.92
+  })
+);
+
 scene.add(stars);
 
-const nebula1 = new THREE.Mesh(new THREE.SphereGeometry(17.5,32,32), new THREE.MeshBasicMaterial({color:0x00e5ff, transparent:true, opacity:0.011}));
+// ============================================================
+// NEBULA
+// ============================================================
+
+const nebula1 = new THREE.Mesh(
+  new THREE.SphereGeometry(18.5,32,32),
+  new THREE.MeshBasicMaterial({
+    color:0x00d9ff,
+    transparent:true,
+    opacity:0.018
+  })
+);
+
 scene.add(nebula1);
-const nebula2 = new THREE.Mesh(new THREE.SphereGeometry(13.5,32,32), new THREE.MeshBasicMaterial({color:0x67e8f9, transparent:true, opacity:0.009}));
-nebula2.position.set(-7,4,-11); scene.add(nebula2);
 
-const shards = [];
-const shardColors = [0x00e5ff,0x67e8f9,0x00e5ff];
-for (let i=0;i<3;i++) {
-  const shard = new THREE.Mesh(new THREE.OctahedronGeometry(0.22,0), new THREE.MeshBasicMaterial({color:shardColors[i],transparent:true,opacity:0.85}));
-  shard.userData = {radius:1.35+i*0.18, speed:0.6+i*0.25, phase:i*1.7};
-  scene.add(shard); shards.push(shard);
-}
+const nebula2 = new THREE.Mesh(
+  new THREE.SphereGeometry(15.5,32,32),
+  new THREE.MeshBasicMaterial({
+    color:0x7ee7ff,
+    transparent:true,
+    opacity:0.012
+  })
+);
 
-const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(4.85,2), new THREE.MeshBasicMaterial({color:0x00e5ff,wireframe:true,transparent:true,opacity:0.11}));
+nebula2.position.set(-8,5,-13);
+
+scene.add(nebula2);
+
+// ============================================================
+// CORE
+// ============================================================
+
+const shell = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(4.85,2),
+  new THREE.MeshBasicMaterial({
+    color:0x00e5ff,
+    wireframe:true,
+    transparent:true,
+    opacity:0.11
+  })
+);
+
 scene.add(shell);
 
-const core = new THREE.Mesh(new THREE.SphereGeometry(0.66,24,24), new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.9}));
+const core = new THREE.Mesh(
+  new THREE.SphereGeometry(0.66,24,24),
+  new THREE.MeshBasicMaterial({
+    color:0x00e5ff,
+    transparent:true,
+    opacity:0.9
+  })
+);
+
 scene.add(core);
-const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(0.48,24,24), new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.35}));
+
+const coreGlow = new THREE.Mesh(
+  new THREE.SphereGeometry(0.48,24,24),
+  new THREE.MeshBasicMaterial({
+    color:0x67e8f9,
+    transparent:true,
+    opacity:0.35
+  })
+);
+
 scene.add(coreGlow);
 
-// ============== LIVE MEMORY NODES + THOUGHT STREAM ==============
-let memoryNodes = {};
-let liveData = {};
+// ============================================================
+// SHARDS
+// ============================================================
 
-// Live data from Flask
-async function fetchLiveData() {
-  try {
-    const res = await fetch('http://127.0.0.1:5000/status');
-    liveData = await res.json();
+const shards = [];
 
-    const energy = liveData.oscillator?.energy || 1.0;
-    core.scale.setScalar(1 + Math.sin(Date.now() / 280) * 0.18 * energy);
-    coreGlow.scale.setScalar(1 + Math.sin(Date.now() / 280) * 0.18 * energy * 0.92);
+const shardColors = [
+  0x00e5ff,
+  0x67e8f9,
+  0x00e5ff
+];
 
-    const pressure = liveData.dreamcore?.pressure || 0;
-    shell.scale.setScalar(1 + pressure * 0.12);
-    shards.forEach((shard, i) => {
-      shard.scale.setScalar(1 + pressure * 0.4 + Math.sin(Date.now()/400 + i) * 0.15);
-    });
+for(let i=0;i<3;i++){
 
-    // Update right panel
-    document.getElementById('mem-count').textContent = liveData.memory_count || 0;
-    document.getElementById('osc').textContent = liveData.oscillator?.mode?.toUpperCase() || "FOCUS";
-    document.getElementById('gate').textContent = liveData.gatecore?.accept_rate ? liveData.gatecore.accept_rate + "%" : "OPEN";
-    document.getElementById('mas').textContent = "3 agents";
+  const shard = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.22,0),
+    new THREE.MeshBasicMaterial({
+      color:shardColors[i],
+      transparent:true,
+      opacity:0.85
+    })
+  );
 
-  } catch(e) {}
+  shard.userData = {
+    radius:1.35+i*0.18,
+    speed:0.6+i*0.25,
+    phase:i*1.7
+  };
+
+  scene.add(shard);
+
+  shards.push(shard);
 }
 
-// Live memory nodes in hexagonal ring
-async function updateMemoryNodes() {
-  try {
-    const res = await fetch('http://127.0.0.1:5000/recall', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({query: "recent important"})
-    });
+// ============================================================
+// MEMORY SYSTEM
+// ============================================================
+
+const API_BASE = "http://127.0.0.1:5000";
+
+let memoryNodes = {};
+let backendOnline = false;
+let lastThoughtHashes = new Set();
+
+function setConnectionState(online){
+
+  backendOnline = online;
+
+  const stateEl =
+    document.getElementById("global-state");
+
+  if(!stateEl) return;
+
+  if(online){
+    stateEl.textContent = "COGNITION ACTIVE";
+    stateEl.style.color = "#00e5ff";
+  }else{
+    stateEl.textContent = "DISCONNECTED";
+    stateEl.style.color = "#ff4d6d";
+  }
+}
+
+async function fetchLiveData(){
+
+  try{
+
+    const res =
+      await fetch(`${API_BASE}/status`);
+
+    const liveData = await res.json();
+
+    setConnectionState(true);
+
+    document.getElementById("mem-count").textContent =
+      liveData.memory_count || 0;
+
+    document.getElementById("osc").textContent =
+      liveData.oscillator?.mode?.toUpperCase() || "FOCUS";
+
+    document.getElementById("gate").textContent =
+      liveData.gatecore?.accept_rate
+      ? liveData.gatecore.accept_rate + "%"
+      : "OPEN";
+
+    document.getElementById("mas").textContent =
+      liveData.mas_agents || "3 AGENTS";
+
+    document.getElementById("nc").textContent =
+      liveData.neurocore_state || "ACTIVE";
+
+    document.getElementById("pc").textContent =
+      liveData.persona_state || "STABLE";
+
+  }catch(err){
+
+    setConnectionState(false);
+
+    console.error(err);
+  }
+}
+
+async function updateMemoryNodes(){
+
+  try{
+
+    const res = await fetch(
+      `${API_BASE}/recall`,
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          query:"recent important"
+        })
+      }
+    );
+
     const memories = await res.json();
 
-    Object.values(memoryNodes).forEach(n => { if (n) scene.remove(n); });
+    Object.values(memoryNodes).forEach(node=>{
+      scene.remove(node);
+    });
+
     memoryNodes = {};
 
     const radius = 6.5;
-    memories.slice(0, 12).forEach((mem, i) => {
-      const angle = (i / 12) * Math.PI * 2;
-      const size = 0.18 + (mem.importance || 0.5) * 0.45;
+
+    memories.slice(0,12).forEach((mem,i)=>{
+
+      const angle =
+        (i / 12) * Math.PI * 2;
+
+      const size =
+        0.18 +
+        (mem.importance || 0.5) * 0.45;
 
       const node = new THREE.Mesh(
-        new THREE.SphereGeometry(size, 16, 16),
-        new THREE.MeshBasicMaterial({color: 0x00e5ff, transparent: true, opacity: 0.9})
+        new THREE.SphereGeometry(size,16,16),
+        new THREE.MeshBasicMaterial({
+          color:0x00e5ff,
+          transparent:true,
+          opacity:0.9
+        })
       );
 
-      node.position.x = Math.cos(angle) * radius;
-      node.position.z = Math.sin(angle) * radius;
-      node.position.y = (mem.importance || 0.5) * 1.2 - 1.5;
+      node.position.x =
+        Math.cos(angle) * radius;
+
+      node.position.z =
+        Math.sin(angle) * radius;
+
+      node.position.y =
+        (mem.importance || 0.5) * 1.2 - 1.5;
+
       node.userData = mem;
+
       scene.add(node);
+
       memoryNodes[mem.id || i] = node;
     });
-  } catch(e) {}
+
+  }catch(err){
+    console.error(err);
+  }
 }
 
-// ============== THOUGHT STREAM VISUALIZATION ==============
-function addThoughtEntry(content, importance = 0.5) {
-  const container = document.getElementById('story-log');
-  const entry = document.createElement('div');
-  entry.className = 'memory-entry';
-  const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  const impColor = importance > 0.8 ? '#00e5ff' : importance > 0.55 ? '#67e8f9' : '#a5f3fc';
+function addThoughtEntry(content,importance=0.5){
+
+  if(!content) return;
+
+  const hash = content.slice(0,80);
+
+  if(lastThoughtHashes.has(hash)) return;
+
+  lastThoughtHashes.add(hash);
+
+  if(lastThoughtHashes.size > 30){
+    lastThoughtHashes =
+      new Set([...lastThoughtHashes].slice(-20));
+  }
+
+  const container =
+    document.getElementById("story-log");
+
+  const entry =
+    document.createElement("div");
+
+  entry.className = "memory-entry";
+
+  const time =
+    new Date().toLocaleTimeString([],{
+      hour:'2-digit',
+      minute:'2-digit'
+    });
+
+  const impColor =
+    importance > 0.8
+      ? '#00e5ff'
+      : importance > 0.55
+      ? '#67e8f9'
+      : '#a5f3fc';
+
   entry.innerHTML = `
-    <div class="time">${time}</div>
-    <div style="color:#e0f7ff;font-size:11.8px;">${content}</div>
-    <div style="margin-top:3px;font-size:8.8px;color:${impColor};">IMPORTANCE ${importance.toFixed(1)}</div>
+    <div style="font-size:9px;color:#64748b;margin-bottom:4px;">
+      ${time}
+    </div>
+
+    <div style="color:#e0f7ff;font-size:11.6px;line-height:1.4;">
+      ${content}
+    </div>
+
+    <div style="
+      margin-top:5px;
+      font-size:8.5px;
+      letter-spacing:1px;
+      color:${impColor};
+    ">
+      IMPORTANCE ${importance.toFixed(2)}
+    </div>
   `;
+
   container.appendChild(entry);
-  if (container.children.length > 9) container.removeChild(container.firstChild);
-  container.scrollTop = container.scrollHeight;
+
+  while(container.children.length > 10){
+    container.removeChild(container.firstChild);
+  }
+
+  container.scrollTop =
+    container.scrollHeight;
 }
 
-// Pull recent thoughts/memories for stream
-async function updateThoughtStream() {
-  try {
-    const res = await fetch('http://127.0.0.1:5000/recall', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({query: "recent"})
-    });
+async function updateThoughtStream(){
+
+  try{
+
+    const res = await fetch(
+      `${API_BASE}/recall`,
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          query:"recent thoughts"
+        })
+      }
+    );
+
     const memories = await res.json();
-    memories.slice(0, 3).forEach(mem => {
-      addThoughtEntry(mem.content.substring(0, 110) + "...", mem.importance || 0.6);
+
+    memories.slice(0,3).forEach(mem=>{
+
+      if(!mem.content) return;
+
+      addThoughtEntry(
+        mem.content
+          .split(".")[0]
+          .substring(0,72),
+        mem.importance || 0.6
+      );
     });
-  } catch(e) {}
+
+  }catch(err){
+    console.error(err);
+  }
 }
 
-// ============== ANIMATION + LIVE LOOP ==============
-function animate() {
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+
+function animate(){
+
   requestAnimationFrame(animate);
+
   const t = Date.now() * 0.001;
-  shell.rotation.y = t * 0.00026;
-  shell.rotation.x = Math.sin(t * 0.00014) * 0.2;
-  const coreScale = 1 + Math.sin(t * 2.55) * 0.075;
+
+  targetPhi =
+    1.28 +
+    Math.sin(t * 0.12) * 0.03;
+
+  shell.rotation.y += 0.00026;
+
+  shell.rotation.x =
+    Math.sin(t * 0.14) * 0.2;
+
+  nebula1.position.x =
+    Math.sin(t * 0.038) * 1.4;
+
+  nebula2.position.z =
+    Math.cos(t * 0.027) * 2.1 - 7;
+
+  const coreScale =
+    1 +
+    Math.sin(t * 2.55) * 0.075;
+
   core.scale.setScalar(coreScale);
-  coreGlow.scale.setScalar(coreScale * 0.92);
-  core.material.color.setHSL(0.52 + Math.sin(t * 0.55) * 0.035, 0.95, 0.71);
-  nebula1.position.x = Math.sin(t * 0.038) * 1.4;
-  nebula2.position.z = Math.cos(t * 0.027) * 2.1 - 7;
-  shards.forEach((shard, i) => {
+
+  coreGlow.scale.setScalar(
+    coreScale * 0.92
+  );
+
+  shards.forEach((shard,i)=>{
+
     const u = shard.userData;
-    const angle = t * u.speed + u.phase;
-    shard.position.x = Math.cos(angle) * u.radius;
-    shard.position.y = Math.sin(angle * 0.7) * (u.radius * 0.35) + 0.3;
-    shard.position.z = Math.sin(angle) * u.radius * 0.6;
-    shard.rotation.x = angle * 1.3;
-    shard.rotation.y = angle * 0.8;
+
+    const angle =
+      t * u.speed + u.phase;
+
+    shard.position.x =
+      Math.cos(angle) * u.radius;
+
+    shard.position.y =
+      Math.sin(angle * 0.7) *
+      (u.radius * 0.35) + 0.3;
+
+    shard.position.z =
+      Math.sin(angle) *
+      u.radius * 0.6;
+
+    shard.rotation.x =
+      angle * 1.3;
+
+    shard.rotation.y =
+      angle * 0.8;
   });
-  stars.rotation.y = t * 0.000055;
-  stars.rotation.x = Math.sin(t * 0.000028) * 0.12;
-  if (autoRotate) targetTheta += 0.00046;
+
+  stars.rotation.y += 0.000055;
+
+  if(autoRotate)
+    targetTheta += 0.00046;
+
   updateCamera(0.085);
 
-  // Pulse live memory nodes
-  Object.values(memoryNodes).forEach((node, i) => {
-    if (node) node.scale.setScalar(1 + Math.sin(t * 4 + i) * 0.12);
+  Object.values(memoryNodes).forEach((node,i)=>{
+
+    if(!node) return;
+
+    node.scale.setScalar(
+      1 +
+      Math.sin(t * 4 + i) * 0.12
+    );
   });
 
-  renderer.render(scene, camera);
+  renderer.render(scene,camera);
 }
+
 animate();
 
-// ============== LIVE UPDATES ==============
-setInterval(fetchLiveData, 800);
-setInterval(updateMemoryNodes, 2200);
-setInterval(updateThoughtStream, 4500);   // Thought stream refreshes every 4.5s
+// ============================================================
+// TIMERS
+// ============================================================
 
-// ============== YOUR ORIGINAL INTERACTIONS ==============
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
+setInterval(fetchLiveData,900);
+
+setInterval(updateMemoryNodes,2500);
+
+setInterval(updateThoughtStream,5000);
+
+// ============================================================
+// RESIZE
+// ============================================================
+
+window.addEventListener("resize",()=>{
+
+  camera.aspect =
+    innerWidth / innerHeight;
+
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+
+  renderer.setSize(
+    innerWidth,
+    innerHeight
+  );
 });
 
-console.log('%c🌐 LIVE 3D JARVIS UI — Thought Stream + Memory Nodes ACTIVE', 'color:#00ffff; font-family:monospace; font-size:14px');
+console.log(
+  "%c🌐 ARA NEUROCORE v3.3 LOCKED ONLINE",
+  "color:#00ffff;font-family:monospace;font-size:14px"
+);
+
 </script>
+
 </body>
 </html>
