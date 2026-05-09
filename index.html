@@ -12,7 +12,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,600;1,700&family=Orbitron:wght@700;900&family=Exo+2:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <style>
-  /* === YOUR ORIGINAL STYLES (unchanged) === */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --ara-primary: #00e5ff;
@@ -23,135 +22,911 @@
     --rex-secondary: #4ade80;
     --rex-glow: rgba(46,139,87,0.22);
   }
-  html, body { height: 100%; width: 100%; overflow: hidden; background: #000; font-family: 'Exo 2', sans-serif; }
-  #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.4s ease; transform: translateY(20px); z-index: 10; padding-top: calc(var(--safe-top) + 20px); padding-bottom: calc(var(--safe-bottom) + 20px); }
-  .screen.active { opacity: 1; pointer-events: all; transform: translateY(0); }
-  .screen.exit { opacity: 0; transform: translateY(-20px); }
-  /* ... (all your existing styles remain exactly the same) ... */
-  .brain-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); cursor: pointer; font-size: 1.15rem; }
-
+  html, body {
+    height: 100%; width: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Exo 2', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+  }
+  #starfield {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+  .screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transform: translateY(20px);
+    z-index: 10;
+    padding-top: calc(var(--safe-top) + 20px);
+    padding-bottom: calc(var(--safe-bottom) + 20px);
+  }
+  .screen.active {
+    opacity: 1; pointer-events: all;
+    transform: translateY(0);
+  }
+  .screen.exit {
+    opacity: 0; transform: translateY(-20px);
+  }
+  /* HOME SCREEN */
+  #home { justify-content: center; gap: 0; padding: 20px; }
+  .home-header {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 14px;
+    margin-bottom: 42px;
+  }
+  .logo-wrap {
+    position: relative;
+    width: 130px; height: 130px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-wrap::before {
+    content: '';
+    position: absolute; inset: -22px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,0.22) 0%, rgba(0,229,255,0.06) 48%, transparent 72%);
+    animation: logo-pulse 3.5s ease-in-out infinite;
+  }
+  @keyframes logo-pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.07); }
+  }
+  .logo-wrap svg {
+    position: relative; z-index: 1;
+    filter: drop-shadow(0 0 10px rgba(0,229,255,0.6)) drop-shadow(0 0 22px rgba(0,229,255,0.25));
+  }
+  .home-title {
+    font-family: 'Chakra Petch', sans-serif;
+    font-style: italic;
+    font-size: clamp(1.45rem, 6.2vw, 2.05rem);
+    font-weight: 700;
+    color: #00e5ff;
+    text-align: center;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 10px rgba(0,229,255,0.7);
+    text-transform: uppercase;
+  }
+  .agent-cards { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 420px; }
+  .agent-card {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: pointer;
+    height: 104px;
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .agent-card:active { transform: scale(0.97); }
+  .agent-card .card-bg { position: absolute; inset: 0; }
+  .agent-card .card-neural { position: absolute; inset: 0; opacity: 0.65; }
+  .agent-card .card-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .agent-card .card-name {
+    font-family: 'Chakra Petch', sans-serif;
+    font-style: italic;
+    font-size: 2.2rem; font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  /* Ara */
+  .card-ara { border-color: rgba(0,229,255,0.28); box-shadow: 0 0 22px rgba(0,229,255,0.1); }
+  .card-ara .card-bg { background: radial-gradient(ellipse at 15% 50%, rgba(0,120,220,0.5) 0%, rgba(0,40,120,0.28) 40%, rgba(1,8,20,0.95) 80%); }
+  .card-ara .card-name { color: var(--ara-primary); text-shadow: 0 0 14px var(--ara-primary); }
+  /* Atlas */
+  .card-atlas { border-color: rgba(255,180,50,0.28); box-shadow: 0 0 22px rgba(255,180,50,0.1); }
+  .card-atlas .card-bg { background: radial-gradient(ellipse at 85% 50%, rgba(220,100,0,0.48) 0%, rgba(140,50,0,0.28) 40%, rgba(9,4,0,0.95) 80%); }
+  .card-atlas .card-name { color: var(--atlas-primary); text-shadow: 0 0 14px var(--atlas-primary); }
+  /* Rex — Rich Deep Iowa Spring Grass */
+  .card-rex { border-color: rgba(46,139,87,0.28); box-shadow: 0 0 22px rgba(46,139,87,0.1); }
+  .card-rex .card-bg { background: radial-gradient(ellipse at 15% 50%, rgba(30,95,50,0.6) 0%, rgba(18,60,28,0.32) 40%, rgba(1,10,3,0.95) 80%); }
+  .card-rex .card-name { color: var(--rex-secondary); text-shadow: 0 0 14px var(--rex-primary); }
+  canvas.neural { width: 100%; height: 100%; }
+  /* AGENT SCREEN */
+  .agent-screen { justify-content: flex-start; padding-left: 0; padding-right: 0; }
+  .agent-bg {
+    position: fixed; inset: 0; z-index: 0;
+    transition: opacity 0.5s ease;
+  }
+  #agent-bg-ara { background: radial-gradient(ellipse 120% 60% at 50% -10%, rgba(0,150,255,0.32) 0%, transparent 55%), #010810; }
+  #agent-bg-atlas { background: radial-gradient(ellipse 120% 60% at 50% -10%, rgba(220,110,0,0.28) 0%, transparent 55%), #090400; }
+  #agent-bg-rex { background: radial-gradient(ellipse 120% 60% at 50% -10%, rgba(30,95,50,0.28) 0%, transparent 55%), #010d03; }
+  .agent-header {
+    width: 100%; padding: 16px 20px 0;
+    display: flex; align-items: center;
+    position: relative; z-index: 2;
+  }
+  .back-btn {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer; color: #fff; font-size: 1.15rem;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.15); }
+  .agent-header-title {
+    flex: 1; text-align: center;
+    font-family: 'Chakra Petch', sans-serif;
+    font-style: italic;
+    font-size: clamp(2.4rem, 12vw, 3.5rem);
+    font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .brain-btn {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer; font-size: 1.15rem;
+  }
+  .agent-status {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.82rem; font-weight: 400;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.7);
+    margin-top: 6px;
+    display: flex; align-items: center; gap: 8px;
+    position: relative; z-index: 2;
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px #4ade80;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .status-sep { opacity: 0.4; }
+  .chat-container {
+    flex: 1; width: 100%; max-width: 480px;
+    margin: 16px auto 0; padding: 0 16px;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+    position: relative; z-index: 2;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chat-box {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    padding: 16px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 10px;
+    min-height: 200px;
+  }
+  .msg {
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    animation: msg-in 0.3s ease;
+  }
+  @keyframes msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .msg-agent {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.9);
+    border-bottom-left-radius: 4px;
+  }
+  .msg-user {
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    color: #000;
+    font-weight: 500;
+  }
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0.3; gap: 8px;
+  }
+  .empty-state .empty-icon { font-size: 2rem; }
+  .empty-state .empty-text {
+    font-size: 0.8rem; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: 'Exo 2', sans-serif;
+  }
+  .neurocore-btn {
+    display: flex; align-items: center; gap: 8px;
+    justify-content: center;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.85rem; font-weight: 500;
+    letter-spacing: 0.1em;
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid currentColor;
+    background: transparent;
+    cursor: pointer;
+    width: fit-content;
+    margin: 0 auto;
+    position: relative; z-index: 2;
+  }
+  .neurocore-btn:active { background: rgba(255,255,255,0.08); }
+  .input-row {
+    width: 100%; max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 16px calc(16px + var(--safe-bottom));
+    display: flex; gap: 10px; align-items: center;
+    position: relative; z-index: 2;
+  }
+  .input-field {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 30px;
+    padding: 12px 18px;
+    color: #fff;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .input-field::placeholder { color: rgba(255,255,255,0.35); }
+  .input-field:focus { border-color: rgba(255,255,255,0.35); }
+  .mic-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; color: rgba(255,255,255,0.5);
+    cursor: pointer; flex-shrink: 0;
+  }
+  .send-btn {
+    width: 46px; height: 46px; flex-shrink: 0;
+    border-radius: 50%;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .send-btn:active { transform: scale(0.92); }
+  /* THEMING */
+  .theme-ara .agent-header-title { color: var(--ara-primary); text-shadow: 0 0 18px var(--ara-primary); }
+  .theme-ara .input-field:focus { border-color: var(--ara-primary); }
+  .theme-ara .send-btn { background: var(--ara-primary); color: #000; box-shadow: 0 0 14px rgba(0,229,255,0.35); }
+  .theme-ara .neurocore-btn { color: var(--ara-primary); }
+  .theme-ara .msg-user { background: var(--ara-primary); }
+  .theme-atlas .agent-header-title { color: var(--atlas-primary); text-shadow: 0 0 18px var(--atlas-primary); }
+  .theme-atlas .input-field:focus { border-color: var(--atlas-primary); }
+  .theme-atlas .send-btn { background: var(--atlas-primary); color: #000; box-shadow: 0 0 14px rgba(255,180,50,0.35); }
+  .theme-atlas .neurocore-btn { color: var(--atlas-primary); }
+  .theme-atlas .msg-user { background: var(--atlas-primary); }
+  .theme-rex .agent-header-title { color: var(--rex-secondary); text-shadow: 0 0 18px var(--rex-primary); }
+  .theme-rex .input-field:focus { border-color: var(--rex-primary); }
+  .theme-rex .send-btn { background: var(--rex-primary); color: #fff; box-shadow: 0 0 14px rgba(46,139,87,0.35); }
+  .theme-rex .neurocore-btn { color: var(--rex-secondary); }
+  .theme-rex .msg-user { background: var(--rex-primary); color: #fff; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+  
   /* MEMORY SCREEN STYLES */
-  #memory-screen { padding: 0; }
-  #memory-canvas { position: absolute; inset: 0; z-index: 1; }
+  #memory-screen { 
+    padding: 0; 
+    background: #000;
+  }
+  #memory-canvas { 
+    position: absolute; 
+    inset: 0; 
+    z-index: 1; 
+  }
+  .memory-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
 </style>
 </head>
 <body>
 <canvas id="starfield"></canvas>
-
-<!-- Agent Backgrounds (your original) -->
+<!-- Agent Backgrounds -->
 <div class="agent-bg" id="agent-bg-ara" style="opacity:0;z-index:1;"></div>
 <div class="agent-bg" id="agent-bg-atlas" style="opacity:0;z-index:1;"></div>
 <div class="agent-bg" id="agent-bg-rex" style="opacity:0;z-index:1;"></div>
-
-<!-- HOME SCREEN (unchanged) -->
-<div class="screen active" id="home"> ... (your home screen code stays exactly the same) ... </div>
-
-<!-- AGENT CHAT SCREEN (your original with brain button) -->
+<!-- HOME SCREEN -->
+<div class="screen active" id="home">
+  <div class="home-header">
+    <div class="logo-wrap">
+      <svg width="130" height="130" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="node-shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="rgba(0,0,0,0.65)"/>
+          </filter>
+          <filter id="cyan-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Mesh Lines -->
+        <g stroke="#1f2937" stroke-width="1.4" opacity="0.9">
+          <!-- All the detailed mesh lines from your version -->
+          <line x1="65" y1="65" x2="65" y2="8"/>
+          <line x1="65" y1="65" x2="95" y2="12"/>
+          <line x1="65" y1="65" x2="118" y2="32"/>
+          <line x1="65" y1="65" x2="122" y2="65"/>
+          <line x1="65" y1="65" x2="118" y2="98"/>
+          <line x1="65" y1="65" x2="95" y2="118"/>
+          <line x1="65" y1="65" x2="65" y2="122"/>
+          <line x1="65" y1="65" x2="35" y2="118"/>
+          <line x1="65" y1="65" x2="12" y2="98"/>
+          <line x1="65" y1="65" x2="8" y2="65"/>
+          <line x1="65" y1="65" x2="12" y2="32"/>
+          <line x1="65" y1="65" x2="35" y2="12"/>
+          <!-- Mid ring -->
+          <line x1="65" y1="65" x2="65" y2="28"/>
+          <line x1="65" y1="65" x2="97" y2="38"/>
+          <line x1="65" y1="65" x2="102" y2="65"/>
+          <line x1="65" y1="65" x2="97" y2="92"/>
+          <line x1="65" y1="65" x2="65" y2="102"/>
+          <line x1="65" y1="65" x2="33" y2="92"/>
+          <line x1="65" y1="65" x2="28" y2="65"/>
+          <line x1="65" y1="65" x2="33" y2="38"/>
+          <!-- Ring connections -->
+          <line x1="65" y1="8" x2="95" y2="12"/>
+          <line x1="95" y1="12" x2="118" y2="32"/>
+          <line x1="118" y1="32" x2="122" y2="65"/>
+          <line x1="122" y1="65" x2="118" y2="98"/>
+          <line x1="118" y1="98" x2="95" y2="118"/>
+          <line x1="95" y1="118" x2="65" y2="122"/>
+          <line x1="65" y1="122" x2="35" y2="118"/>
+          <line x1="35" y1="118" x2="12" y2="98"/>
+          <line x1="12" y1="98" x2="8" y2="65"/>
+          <line x1="8" y1="65" x2="12" y2="32"/>
+          <line x1="12" y1="32" x2="35" y2="12"/>
+          <line x1="35" y1="12" x2="65" y2="8"/>
+          <!-- Mid ring connections -->
+          <line x1="65" y1="28" x2="97" y2="38"/>
+          <line x1="97" y1="38" x2="102" y2="65"/>
+          <line x1="102" y1="65" x2="97" y2="92"/>
+          <line x1="97" y1="92" x2="65" y2="102"/>
+          <line x1="65" y1="102" x2="33" y2="92"/>
+          <line x1="33" y1="92" x2="28" y2="65"/>
+          <line x1="28" y1="65" x2="33" y2="38"/>
+          <line x1="33" y1="38" x2="65" y2="28"/>
+        </g>
+        <!-- Outer Nodes -->
+        <g filter="url(#node-shadow)">
+          <circle cx="65" cy="8" r="5.8" fill="#1e2e3e"/>
+          <circle cx="95" cy="12" r="5.8" fill="#1e2e3e"/>
+          <circle cx="118" cy="32" r="5.8" fill="#1e2e3e"/>
+          <circle cx="122" cy="65" r="5.8" fill="#1e2e3e"/>
+          <circle cx="118" cy="98" r="5.8" fill="#1e2e3e"/>
+          <circle cx="95" cy="118" r="5.8" fill="#1e2e3e"/>
+          <circle cx="65" cy="122" r="5.8" fill="#1e2e3e"/>
+          <circle cx="35" cy="118" r="5.8" fill="#1e2e3e"/>
+          <circle cx="12" cy="98" r="5.8" fill="#1e2e3e"/>
+          <circle cx="8" cy="65" r="5.8" fill="#1e2e3e"/>
+          <circle cx="12" cy="32" r="5.8" fill="#1e2e3e"/>
+          <circle cx="35" cy="12" r="5.8" fill="#1e2e3e"/>
+        </g>
+        <!-- Mid Nodes -->
+        <g filter="url(#node-shadow)">
+          <circle cx="65" cy="28" r="4.8" fill="#1e2e3e"/>
+          <circle cx="97" cy="38" r="4.8" fill="#1e2e3e"/>
+          <circle cx="102" cy="65" r="4.8" fill="#1e2e3e"/>
+          <circle cx="97" cy="92" r="4.8" fill="#1e2e3e"/>
+          <circle cx="65" cy="102" r="4.8" fill="#1e2e3e"/>
+          <circle cx="33" cy="92" r="4.8" fill="#1e2e3e"/>
+          <circle cx="28" cy="65" r="4.8" fill="#1e2e3e"/>
+          <circle cx="33" cy="38" r="4.8" fill="#1e2e3e"/>
+        </g>
+        <!-- Central Hex -->
+        <polygon points="65,42 82,51 82,71 65,80 48,71 48,51"
+          fill="#0d1e2e" stroke="#1e3a50" stroke-width="1.8"/>
+        <polygon points="65,44 80,53 80,69 65,78 50,69 50,53"
+          fill="none" stroke="rgba(0,229,255,0.12)" stroke-width="1"/>
+        <!-- SS Text -->
+        <text x="65" y="69" text-anchor="middle"
+          font-family="Orbitron,sans-serif" font-weight="800"
+          font-size="20" fill="#00e5ff" letter-spacing="2.5"
+          filter="url(#cyan-glow)">SS</text>
+      </svg>
+    </div>
+    <h1 class="home-title">Sentinel Systems</h1>
+  </div>
+  <div class="agent-cards">
+    <div class="agent-card card-ara" onclick="openAgent('ara')">
+      <div class="card-bg"></div>
+      <canvas class="card-neural neural" id="neural-ara"></canvas>
+      <div class="card-overlay">
+        <span class="card-name">Ara</span>
+      </div>
+    </div>
+    <div class="agent-card card-atlas" onclick="openAgent('atlas')">
+      <div class="card-bg"></div>
+      <canvas class="card-neural neural" id="neural-atlas"></canvas>
+      <div class="card-overlay">
+        <span class="card-name">Atlas</span>
+      </div>
+    </div>
+    <div class="agent-card card-rex" onclick="openAgent('rex')">
+      <div class="card-bg"></div>
+      <canvas class="card-neural neural" id="neural-rex"></canvas>
+      <div class="card-overlay">
+        <span class="card-name">Rex</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- AGENT SCREEN -->
 <div class="screen agent-screen" id="agent-view">
   <div class="agent-header">
     <button class="back-btn" onclick="goHome()">←</button>
     <div class="agent-header-title" id="agent-title">Ara</div>
     <div class="brain-btn" id="brain-btn" title="Neural Memory">🧠</div>
   </div>
-  <!-- ... rest of your chat UI ... -->
+  <div class="agent-status">
+    <span class="status-dot"></span>
+    <span>Memory</span>
+    <span class="status-sep">•</span>
+    <span>Active</span>
+    <span class="status-sep">•</span>
+    <span>Online</span>
+  </div>
+  <div class="chat-container">
+    <div class="chat-box" id="chat-box">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">Awaiting input</div>
+      </div>
+    </div>
+  </div>
+  <button class="neurocore-btn" id="neurocore-btn" onclick="addToNeurocore()">
+    <span>＋</span> Add to Neurocore
+  </button>
+  <div class="input-row">
+    <input class="input-field" id="chat-input" type="text" placeholder="Ask..." autocomplete="off">
+    <button class="mic-btn" onclick="toggleMic()">🎙</button>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">→</button>
+  </div>
 </div>
 
-<!-- NEW: MEMORY / BRAIN SCREEN -->
+<!-- MEMORY SCREEN -->
 <div class="screen" id="memory-screen">
-  <div class="agent-header">
+  <div class="memory-header">
     <button class="back-btn" onclick="closeMemory()">←</button>
-    <div class="agent-header-title" style="color:#00e5ff;">Memory Field</div>
+    <div class="agent-header-title" id="memory-title" style="color:#00e5ff;">Memory</div>
   </div>
   <canvas id="memory-canvas"></canvas>
 </div>
 
 <script>
-// === YOUR ORIGINAL CODE (starfield, agent logic, chat, etc.) ===
-// ... keep everything from your original script exactly as it is ...
-
-// === ADD THIS AT THE VERY BOTTOM OF YOUR <script> TAG ===
-
-// 3D Memory Graph (full working version)
-let memoryScene, memoryCamera, memoryRenderer, memoryNodes = [], memoryLines = [];
-let memoryLoaded = false;
-
-async function initMemoryGraph() {
-  if (memoryLoaded) return;
-  memoryLoaded = true;
-
-  const canvas = document.getElementById('memory-canvas');
-  memoryScene = new THREE.Scene();
-  memoryCamera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-  memoryRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-  memoryRenderer.setSize(window.innerWidth, window.innerHeight);
-  memoryRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  // Camera
-  let radius = 13, theta = 0.8, phi = 1.25;
-  function updateCamera() {
-    memoryCamera.position.set(
-      radius * Math.sin(phi) * Math.cos(theta),
-      radius * Math.cos(phi),
-      radius * Math.sin(phi) * Math.sin(theta)
-    );
-    memoryCamera.lookAt(0, 0, 0);
+// Starfield + Nebula code (unchanged from your version)
+const starCanvas = document.getElementById('starfield');
+const starCtx = starCanvas.getContext('2d');
+let stars = [], dustClouds = [], shootingStar = null, shootTimer = 0;
+function initStars() {
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  const W = starCanvas.width, H = starCanvas.height;
+  stars = Array.from({length: 320}, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    r: Math.pow(Math.random(), 2.5) * 1.8 + 0.15,
+    a: Math.random() * 0.7 + 0.3,
+    da: (Math.random() - 0.5) * 0.003,
+    color: Math.random() > 0.85 ? `rgba(180,210,255,` : Math.random() > 0.7 ? `rgba(255,240,200,` : `rgba(255,255,255,`
+  }));
+  dustClouds = Array.from({length: 6}, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    rx: 80 + Math.random() * 160, ry: 40 + Math.random() * 80,
+    a: Math.random() * 0.04 + 0.01,
+    hue: [200, 220, 260, 180][Math.floor(Math.random()*4)]
+  }));
+}
+function spawnShootingStar() {
+  const W = starCanvas.width, H = starCanvas.height;
+  shootingStar = {
+    x: Math.random() * W * 0.7,
+    y: Math.random() * H * 0.3,
+    len: 80 + Math.random() * 120,
+    speed: 8 + Math.random() * 6,
+    a: 1, life: 1
+  };
+}
+function drawStars() {
+  const W = starCanvas.width, H = starCanvas.height;
+  starCtx.clearRect(0, 0, W, H);
+  dustClouds.forEach(d => {
+    const grad = starCtx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.rx);
+    grad.addColorStop(0, `hsla(${d.hue},60%,70%,${d.a})`);
+    grad.addColorStop(1, `hsla(${d.hue},60%,70%,0)`);
+    starCtx.save();
+    starCtx.scale(1, d.ry / d.rx);
+    starCtx.beginPath();
+    starCtx.arc(d.x, d.y * (d.rx / d.ry), d.rx, 0, Math.PI * 2);
+    starCtx.fillStyle = grad;
+    starCtx.fill();
+    starCtx.restore();
+  });
+  stars.forEach(s => {
+    s.a += s.da;
+    if (s.a < 0.15) s.da = Math.abs(s.da);
+    if (s.a > 1) s.da = -Math.abs(s.da);
+    if (s.r > 1.2) {
+      const grd = starCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3);
+      grd.addColorStop(0, `${s.color}${(s.a * 0.6).toFixed(2)})`);
+      grd.addColorStop(1, `${s.color}0)`);
+      starCtx.beginPath();
+      starCtx.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2);
+      starCtx.fillStyle = grd;
+      starCtx.fill();
+    }
+    starCtx.beginPath();
+    starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    starCtx.fillStyle = `${s.color}${s.a.toFixed(2)})`;
+    starCtx.fill();
+  });
+  shootTimer++;
+  if (shootTimer > 280 && !shootingStar) { spawnShootingStar(); shootTimer = 0; }
+  if (shootingStar) {
+    const ss = shootingStar;
+    ss.x += ss.speed; ss.y += ss.speed * 0.5; ss.life -= 0.025;
+    if (ss.life <= 0) { shootingStar = null; }
+    else {
+      starCtx.save();
+      const grad = starCtx.createLinearGradient(ss.x - ss.len, ss.y - ss.len*0.5, ss.x, ss.y);
+      grad.addColorStop(0, `rgba(255,255,255,0)`);
+      grad.addColorStop(1, `rgba(255,255,255,${ss.life * 0.8})`);
+      starCtx.beginPath();
+      starCtx.moveTo(ss.x - ss.len, ss.y - ss.len * 0.5);
+      starCtx.lineTo(ss.x, ss.y);
+      starCtx.strokeStyle = grad;
+      starCtx.lineWidth = 1.5;
+      starCtx.stroke();
+      starCtx.restore();
+    }
   }
-  updateCamera();
+  requestAnimationFrame(drawStars);
+}
+initStars();
+drawStars();
+window.addEventListener('resize', initStars);
+function paintNebula(canvasId, h1, h2, h3) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const dpr = window.devicePixelRatio || 1;
+  c.width = c.offsetWidth * dpr;
+  c.height = c.offsetHeight * dpr;
+  const ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = c.offsetWidth, h = c.offsetHeight;
+  const blobs = [
+    [0.08, 0.5, w*0.38, h*0.9, h1, 70, 60, 0.18],
+    [0.18, 0.5, w*0.22, h*0.7, h1, 80, 75, 0.22],
+    [0.85, 0.5, w*0.35, h*0.85, h2, 65, 55, 0.16],
+    [0.75, 0.5, w*0.20, h*0.65, h2, 75, 70, 0.20],
+    [0.5, 0.5, w*0.50, h*1.2, h3, 40, 30, 0.08],
+    [0.12, 0.3, w*0.15, h*0.4, h1, 90, 85, 0.14],
+    [0.88, 0.7, w*0.14, h*0.35, h2, 85, 80, 0.12],
+    [0.5, 0.15, w*0.60, h*0.50, h3, 50, 45, 0.06],
+  ];
+  blobs.forEach(([cxp, cyp, rx, ry, hue, sat, lit, a]) => {
+    const cx = cxp * w, cy = cyp * h;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
+    grad.addColorStop(0, `hsla(${hue},${sat}%,${lit}%,${a})`);
+    grad.addColorStop(0.4, `hsla(${hue},${sat-10}%,${lit-10}%,${a*0.6})`);
+    grad.addColorStop(1, `hsla(${hue},${sat}%,${lit}%,0)`);
+    ctx.save();
+    ctx.scale(1, ry / rx);
+    ctx.beginPath();
+    ctx.arc(cx, cy * (rx / ry), rx, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+  });
+  for (let i = 0; i < 55; i++) {
+    const sx = Math.random() * w;
+    const sy = Math.random() * h;
+    const sr = Math.pow(Math.random(), 3) * 1.2 + 0.1;
+    const sa = Math.random() * 0.7 + 0.3;
+    ctx.beginPath();
+    ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${sa})`;
+    ctx.fill();
+  }
+}
+setTimeout(() => {
+  paintNebula('neural-ara', 195, 220, 210);
+  paintNebula('neural-atlas', 28, 45, 35);
+  paintNebula('neural-rex', 120, 135, 128);
+}, 100);
 
-  // Stars + Core (same as before)
+// Navigation
+let currentAgent = null;
+const agentConfig = {
+  ara: { name:'Ara', color:'var(--ara-primary)', theme:'theme-ara', bg:'agent-bg-ara', placeholder:'Ask Ara...' },
+  atlas: { name:'Atlas', color:'var(--atlas-primary)', theme:'theme-atlas', bg:'agent-bg-atlas', placeholder:'Ask Atlas...' },
+  rex: { name:'Rex', color:'var(--rex-primary)', theme:'theme-rex', bg:'agent-bg-rex', placeholder:'Ask Rex...' }
+};
+
+function openAgent(id) {
+  currentAgent = id;
+  const cfg = agentConfig[id];
+  const view = document.getElementById('agent-view');
+  view.className = `screen agent-screen ${cfg.theme}`;
+  document.getElementById('agent-title').textContent = cfg.name;
+  document.getElementById('chat-input').placeholder = cfg.placeholder;
+  ['ara','atlas','rex'].forEach(a => {
+    document.getElementById(`agent-bg-${a}`).style.opacity = a===id ? '1' : '0';
+  });
+  renderMessages(id);
+  const home = document.getElementById('home');
+  home.classList.add('exit');
+  setTimeout(() => { home.classList.remove('active','exit'); }, 400);
+  view.classList.add('active');
+  starCanvas.style.opacity = '0.4';
+}
+ 
+function goHome() {
+  const home = document.getElementById('home');
+  const view = document.getElementById('agent-view');
+  view.classList.add('exit');
+  setTimeout(() => { view.classList.remove('active','exit'); }, 400);
+  home.classList.add('active');
+  ['ara','atlas','rex'].forEach(a => {
+    document.getElementById(`agent-bg-${a}`).style.opacity = '0';
+  });
+  starCanvas.style.opacity = '1';
+}
+
+const messageStore = { ara: [], atlas: [], rex: [] };
+function renderMessages(agentId) {
+  const box = document.getElementById('chat-box');
+  const msgs = messageStore[agentId];
+  box.innerHTML = '';
+  if (msgs.length === 0) {
+    const e = document.createElement('div');
+    e.className = 'empty-state';
+    e.innerHTML = '<div class="empty-icon">◎</div><div class="empty-text">Awaiting input</div>';
+    box.appendChild(e);
+    return;
+  }
+  msgs.forEach(m => {
+    const el = document.createElement('div');
+    el.className = `msg ${m.role === 'user' ? 'msg-user' : 'msg-agent'}`;
+    el.textContent = m.text;
+    box.appendChild(el);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+// ==================== BACKEND INTEGRATION ====================
+const BACKEND_URL = "http://172.27.14.151:8000";
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !currentAgent) return;
+
+  messageStore[currentAgent].push({ role: 'user', text });
+  input.value = '';
+  renderMessages(currentAgent);
+
+  const loadingId = 'loading-' + Date.now();
+  const box = document.getElementById('chat-box');
+  box.innerHTML += `<div id="${loadingId}" class="msg msg-agent">Thinking...</div>`;
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        agent: currentAgent
+      })
+    });
+
+    const data = await response.json();
+    document.getElementById(loadingId).remove();
+
+    messageStore[currentAgent].push({ 
+      role: 'agent', 
+      text: data.reply 
+    });
+
+    renderMessages(currentAgent);
+
+  } catch (error) {
+    console.error("Connection error:", error);
+    document.getElementById(loadingId).remove();
+    messageStore[currentAgent].push({ 
+      role: 'agent', 
+      text: "Sorry, couldn't connect to Rex right now." 
+    });
+    renderMessages(currentAgent);
+  }
+}
+
+function addToNeurocore() {
+  const btn = document.getElementById('neurocore-btn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ Saved to Neurocore';
+  btn.style.opacity = '0.7';
+  setTimeout(() => { btn.innerHTML = orig; btn.style.opacity = '1'; }, 2000);
+}
+
+function toggleMic() {
+  console.log('Mic pressed');
+}
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+// ==================== 3D MEMORY VISUALIZATION ====================
+let memoryScene, memoryCamera, memoryRenderer, memoryNodes = [], memoryLines = [];
+let memoryAnimationId = null;
+
+function initMemoryGraph() {
+  const canvas = document.getElementById('memory-canvas');
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  
+  memoryScene = new THREE.Scene();
+  memoryCamera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+  memoryRenderer = new THREE.WebGLRenderer({ 
+    canvas: canvas, 
+    antialias: true, 
+    alpha: true, 
+    powerPreference: 'high-performance' 
+  });
+  memoryRenderer.setSize(w, h);
+  memoryRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  memoryRenderer.setClearColor(0x000000, 1);
+
+  // Position camera
+  memoryCamera.position.z = 25;
+
+  // Background starfield
   const starsGeo = new THREE.BufferGeometry();
   let verts = [];
-  for(let i = 0; i < 1600; i++) verts.push((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80);
+  for (let i = 0; i < 2000; i++) {
+    verts.push(
+      (Math.random() - 0.5) * 200,
+      (Math.random() - 0.5) * 200,
+      (Math.random() - 0.5) * 200
+    );
+  }
   starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-  memoryScene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({color:0x67e8f9, size:0.035, transparent:true, opacity:0.7})));
+  const starsMat = new THREE.PointsMaterial({ 
+    color: 0x4db8ff, 
+    size: 0.15, 
+    transparent: true, 
+    opacity: 0.6 
+  });
+  const starsPoints = new THREE.Points(starsGeo, starsMat);
+  memoryScene.add(starsPoints);
 
-  const core = new THREE.Mesh(new THREE.SphereGeometry(0.8,48,48), new THREE.MeshBasicMaterial({color:0x67e8f9}));
-  const glow = new THREE.Mesh(new THREE.SphereGeometry(1.4,48,48), new THREE.MeshBasicMaterial({color:0x67e8f9, transparent:true, opacity:0.08}));
-  memoryScene.add(core); memoryScene.add(glow);
+  // Central core
+  const coreGeo = new THREE.SphereGeometry(1.2, 32, 32);
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  memoryScene.add(core);
 
-  // Load your real memory_graph.json
-  await loadMemoryGraph();
+  // Glow around core
+  const glowGeo = new THREE.SphereGeometry(2.5, 32, 32);
+  const glowMat = new THREE.MeshBasicMaterial({ 
+    color: 0x00e5ff, 
+    transparent: true, 
+    opacity: 0.15 
+  });
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  memoryScene.add(glow);
+
+  // Create memory nodes in orbit
+  const nodeCount = 12;
+  for (let i = 0; i < nodeCount; i++) {
+    const angle = (i / nodeCount) * Math.PI * 2;
+    const radius = 8;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    const z = Math.sin(angle * 2.3) * 3;
+
+    const nodeGeo = new THREE.SphereGeometry(0.6, 16, 16);
+    const nodeMat = new THREE.MeshBasicMaterial({ 
+      color: new THREE.Color().setHSL(0.5 + i * 0.05, 0.8, 0.6) 
+    });
+    const nodeMesh = new THREE.Mesh(nodeGeo, nodeMat);
+    nodeMesh.position.set(x, y, z);
+    nodeMesh.userData = { 
+      angle: angle, 
+      radius: radius, 
+      bobPhase: Math.random() * Math.PI * 2 
+    };
+    memoryScene.add(nodeMesh);
+    memoryNodes.push(nodeMesh);
+
+    // Connect to core
+    const lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0, x,y,z], 3));
+    const lineMat = new THREE.LineBasicMaterial({ 
+      color: 0x00e5ff, 
+      transparent: true, 
+      opacity: 0.3 
+    });
+    const line = new THREE.Line(lineGeo, lineMat);
+    memoryScene.add(line);
+    memoryLines.push(line);
+  }
 
   // Animation loop
   function animate() {
-    requestAnimationFrame(animate);
-    const t = Date.now() * 0.001;
-    // ... your full animation code (stars, core pulse, node bob, lines, etc.)
+    memoryAnimationId = requestAnimationFrame(animate);
+
+    const t = Date.now() * 0.0005;
+
+    // Rotate core
+    core.rotation.x += 0.0003;
+    core.rotation.y += 0.0005;
+    glow.rotation.y -= 0.0002;
+
+    // Pulse core
+    const scale = 1 + Math.sin(t) * 0.15;
+    core.scale.set(scale, scale, scale);
+
+    // Animate nodes
+    memoryNodes.forEach(node => {
+      const data = node.userData;
+      const orbitT = t * 0.5;
+      const x = Math.cos(data.angle + orbitT) * data.radius;
+      const y = Math.sin(data.angle + orbitT) * data.radius;
+      const z = Math.sin(data.angle * 2.3 + orbitT) * 3;
+      const bob = Math.sin(data.bobPhase + t * 2) * 0.5;
+      
+      node.position.set(x, y + bob, z);
+      node.rotation.x += 0.005;
+      node.rotation.y += 0.008;
+    });
+
+    // Update line positions
+    let nodeIdx = 0;
+    memoryLines.forEach(line => {
+      if (nodeIdx < memoryNodes.length) {
+        const node = memoryNodes[nodeIdx];
+        const pos = line.geometry.attributes.position;
+        pos.setXYZ(1, node.position.x, node.position.y, node.position.z);
+        pos.needsUpdate = true;
+        nodeIdx++;
+      }
+    });
+
     memoryRenderer.render(memoryScene, memoryCamera);
   }
   animate();
 }
 
-// Load real memories
-async function loadMemoryGraph() {
-  try {
-    const res = await fetch('./memory_graph.json');
-    const memories = await res.json();
-    // ... (use the exact loadMemoryGraph code we perfected earlier)
-    // createNode, createConnections, etc.
-    console.log("Loaded", memories.length, "real memories into brain");
-  } catch(e) {
-    console.error("Could not load memory_graph.json", e);
-  }
-}
-
-// Wire the brain button
-document.getElementById('brain-btn').onclick = function() {
+function openMemory() {
   const agentView = document.getElementById('agent-view');
   const memoryScreen = document.getElementById('memory-screen');
+  
+  document.getElementById('memory-title').textContent = `${agentConfig[currentAgent].name} Memory`;
   
   agentView.classList.add('exit');
   setTimeout(() => {
     agentView.classList.remove('active', 'exit');
     memoryScreen.classList.add('active');
-    initMemoryGraph();   // start 3D only when opened
+    initMemoryGraph();
   }, 400);
-};
+}
 
 function closeMemory() {
   const memoryScreen = document.getElementById('memory-screen');
   const agentView = document.getElementById('agent-view');
+  
+  if (memoryAnimationId) cancelAnimationFrame(memoryAnimationId);
+  if (memoryRenderer) memoryRenderer.dispose();
   
   memoryScreen.classList.add('exit');
   setTimeout(() => {
@@ -160,12 +935,17 @@ function closeMemory() {
   }, 400);
 }
 
-// Resize handler for 3D
+// Wire brain button
+document.getElementById('brain-btn').addEventListener('click', openMemory);
+
+// Handle window resize
 window.addEventListener('resize', () => {
-  if (!memoryCamera) return;
-  memoryCamera.aspect = window.innerWidth / window.innerHeight;
+  if (!memoryCamera || !memoryRenderer) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  memoryCamera.aspect = w / h;
   memoryCamera.updateProjectionMatrix();
-  if (memoryRenderer) memoryRenderer.setSize(window.innerWidth, window.innerHeight);
+  memoryRenderer.setSize(w, h);
 });
 </script>
 </body>
