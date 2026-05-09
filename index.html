@@ -709,13 +709,15 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text || !currentAgent) return;
 
+  // Add user message immediately
   messageStore[currentAgent].push({ role: 'user', text });
   input.value = '';
   renderMessages(currentAgent);
 
+  // Show thinking indicator
   const loadingId = 'loading-' + Date.now();
   const box = document.getElementById('chat-box');
-  box.innerHTML += `<div id="${loadingId}" class="msg msg-agent">Thinking...</div>`;
+  box.innerHTML += `<div id="${loadingId}" class="msg msg-agent">Ara is reflecting...</div>`;
   box.scrollTop = box.scrollHeight;
 
   try {
@@ -729,14 +731,35 @@ async function sendMessage() {
     });
 
     const data = await response.json();
-    document.getElementById(loadingId).remove();
 
+    // Remove loading message
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
+
+    if (data.success && data.reply) {
+      messageStore[currentAgent].push({ 
+        role: 'agent', 
+        text: data.reply 
+      });
+    } else {
+      messageStore[currentAgent].push({ 
+        role: 'agent', 
+        text: data.error || "Sorry, I couldn't process that right now." 
+      });
+    }
+
+  } catch (error) {
+    console.error("Backend connection error:", error);
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
     messageStore[currentAgent].push({ 
       role: 'agent', 
-      text: data.reply 
+      text: "Connection lost to Ara Runtime. Trying again..." 
     });
+  }
 
-    renderMessages(currentAgent);
+  renderMessages(currentAgent);
+}
 
   } catch (error) {
     console.error("Connection error:", error);
