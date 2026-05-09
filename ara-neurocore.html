@@ -84,7 +84,7 @@ body::before {
 @keyframes liveDream { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.82); } }
 #left-panel { top: 88px; left: 18px; width: 265px; max-height: calc(100vh - 185px); overflow-y: auto; }
 #right-panel { top: 88px; right: 18px; width: 245px; }
-#node-info { bottom: 88px; right: 18px; width: 265px; display: none; }
+#node-info { bottom: 88px; right: 18px; width: 280px; display: none; max-height: 280px; overflow-y: auto; }
 #query-bar {
   position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
   width: 95%; max-width: 660px; z-index: 40;
@@ -93,17 +93,20 @@ body::before {
   border: 1px solid rgba(142,247,208,0.28);
 }
 #query { flex: 1; background: transparent; border: none; color: #e6f4ff; font-size: 13.8px; outline: none; }
+#query::placeholder { color: rgba(148,163,184,0.6); }
 .btn {
   background: rgba(142,247,208,0.11);
   border: 1px solid #8ef7d0;
   color: #8ef7d0;
   padding: 7px 17px; border-radius: 9999px;
   font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s ease;
 }
 .btn:hover {
   background: #8ef7d0; color: #051018;
   box-shadow: 0 0 24px rgba(142,247,208,0.65);
 }
+.btn:active { transform: scale(0.96); }
 .section-title { font-size: 9.2px; font-weight: 700; letter-spacing: 1.9px; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; }
 .memory-entry {
   background: rgba(17,24,24,0.58);
@@ -114,10 +117,16 @@ body::before {
   transition: all 0.16s ease; cursor: pointer;
 }
 .memory-entry:hover { border-left-color: #7dd3fc; background: rgba(30,41,41,0.78); transform: translateX(2px); }
+.memory-entry.active { border-left-color: #fde68a; background: rgba(40,50,50,0.95); }
 .stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(148,163,184,0.08); font-size: 12.2px; }
 .stat-row:last-child { border-bottom: none; }
 .stat-label { color: #94a3b8; }
 .stat-value { font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #8ef7d0; }
+.agent-tag { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+#story-log::-webkit-scrollbar { width: 6px; }
+#story-log::-webkit-scrollbar-track { background: transparent; }
+#story-log::-webkit-scrollbar-thumb { background: rgba(142,247,208,0.3); border-radius: 3px; }
+#story-log::-webkit-scrollbar-thumb:hover { background: rgba(142,247,208,0.6); }
 </style>
 </head>
 <body>
@@ -179,10 +188,15 @@ body::before {
 <div id="node-info" class="panel glass">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
     <div style="font-size:9.3px; letter-spacing:1.2px; color:#8ef7d0;">MEMORY REFLECTION</div>
-    <button onclick="document.getElementById('node-info').style.display='none'" style="background:none; border:none; color:#475569; font-size:15px; cursor:pointer;">×</button>
+    <button onclick="closeNodeInfo()" style="background:none; border:none; color:#475569; font-size:15px; cursor:pointer;">×</button>
   </div>
-  <div id="node-content" style="font-size:13px; line-height:1.4; margin-bottom:9px; color:#e6f4ff;"></div>
+  <div id="node-title" style="font-weight:600; font-size:12px; color:#fde68a; margin-bottom:8px;"></div>
+  <div id="node-content" style="font-size:12px; line-height:1.5; margin-bottom:9px; color:#e6f4ff;"></div>
   <div id="node-meta" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:9px;"></div>
+  <div style="font-size:10px; color:#64748b; padding-top:8px; border-top:1px solid rgba(148,163,184,0.1);">
+    <div>Weight: <span id="node-weight" style="color:#8ef7d0;">0</span></div>
+    <div style="margin-top:3px;">Connections: <span id="node-connections" style="color:#8ef7d0;">0</span></div>
+  </div>
 </div>
 
 <!-- QUERY BAR -->
@@ -195,7 +209,10 @@ body::before {
 </div>
 
 <script>
-// ARA NeuroCore v3 — REX Engine + ARA Identity
+// ============================================================================
+// ARA NeuroCore v3 — Complete REX Engine with Full Interactivity
+// ============================================================================
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, 0.1, 1000);
 let cameraRadius = 12.8, cameraTheta = 0.85, cameraPhi = 1.28;
@@ -217,7 +234,7 @@ const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'),
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Stars + Core (ARA cyan)
+// Stars + Core
 const starsGeo = new THREE.BufferGeometry();
 let starVerts = [], starColors = [];
 for (let i = 0; i < 1350; i++) {
@@ -232,11 +249,55 @@ scene.add(stars);
 
 const core = new THREE.Mesh(new THREE.SphereGeometry(0.66, 52, 52), new THREE.MeshBasicMaterial({ color: 0x8ef7d0, transparent: true, opacity: 0.9 }));
 const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(1.1, 48, 48), new THREE.MeshBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.25 }));
-scene.add(core); scene.add(coreGlow);
+scene.add(core);
+scene.add(coreGlow);
 
+// Graph data structures
 let nodes = {};
+let nodesMesh = null;
+let edgeLines = null;
 let edges = [];
 let graphData = null;
+let selectedNodeId = null;
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+// Demo data generator
+function generateDemoData() {
+  const nodeTexts = [
+    { id: "mem_001", text: "First light of dawn", weight: 0.85, tags: ["reflection", "beginning"] },
+    { id: "mem_002", text: "Deep conversation", weight: 0.92, tags: ["connection", "growth"] },
+    { id: "mem_003", text: "Moment of clarity", weight: 0.78, tags: ["insight", "turning-point"] },
+    { id: "mem_004", text: "Quiet solitude", weight: 0.65, tags: ["peace", "introspection"] },
+    { id: "mem_005", text: "Unexpected joy", weight: 0.88, tags: ["surprise", "warmth"] },
+    { id: "mem_006", text: "Facing difficulty", weight: 0.72, tags: ["challenge", "resilience"] },
+    { id: "mem_007", text: "Creative breakthrough", weight: 0.91, tags: ["creation", "flow"] },
+    { id: "mem_008", text: "Shared laughter", weight: 0.80, tags: ["communion", "lightness"] },
+  ];
+
+  const nodeData = nodeTexts.map(n => ({
+    id: n.id,
+    text: n.text,
+    weight: n.weight,
+    tags: n.tags,
+    x: (Math.random() - 0.5) * 8,
+    y: (Math.random() - 0.5) * 8,
+    z: (Math.random() - 0.5) * 8
+  }));
+
+  const edgeData = [
+    { source: "mem_001", target: "mem_002", weight: 0.6 },
+    { source: "mem_002", target: "mem_003", weight: 0.75 },
+    { source: "mem_003", target: "mem_005", weight: 0.55 },
+    { source: "mem_002", target: "mem_007", weight: 0.8 },
+    { source: "mem_004", target: "mem_001", weight: 0.5 },
+    { source: "mem_006", target: "mem_005", weight: 0.65 },
+    { source: "mem_007", target: "mem_008", weight: 0.7 },
+    { source: "mem_001", target: "mem_005", weight: 0.48 }
+  ];
+
+  return { nodes: nodeData, edges: edgeData };
+}
 
 async function loadAraCore() {
   try {
@@ -244,30 +305,261 @@ async function loadAraCore() {
     const data = await res.json();
     build(data);
   } catch(e) {
-    console.error("Failed to load aracore.json", e);
+    console.warn("No external data found, using demo data", e);
+    build(generateDemoData());
   }
 }
 
-function build(data) { /* full REX build logic kept intact */ 
+function build(data) {
   graphData = data;
+  
+  // Create node meshes
+  const nodeCount = data.nodes.length;
+  const positions = new Float32Array(nodeCount * 3);
+  const colors = new Float32Array(nodeCount * 3);
+  
+  data.nodes.forEach((node, i) => {
+    positions[i * 3] = node.x;
+    positions[i * 3 + 1] = node.y;
+    positions[i * 3 + 2] = node.z;
+    
+    // Color by weight
+    const hue = node.weight * 0.6; // 0 = red, 0.6 = cyan
+    const color = new THREE.Color().setHSL(hue, 0.8, 0.55);
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+    
+    nodes[node.id] = { ...node, index: i };
+  });
+  
+  const nodeGeo = new THREE.BufferGeometry();
+  nodeGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  nodeGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  
+  const nodeMat = new THREE.PointsMaterial({
+    size: 0.35,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.95,
+    sizeAttenuation: true
+  });
+  
+  nodesMesh = new THREE.Points(nodeGeo, nodeMat);
+  scene.add(nodesMesh);
+  
+  // Create edge lines
+  const edgePosArray = [];
+  data.edges.forEach(edge => {
+    const srcNode = nodes[edge.source];
+    const tgtNode = nodes[edge.target];
+    if (srcNode && tgtNode) {
+      edgePosArray.push(srcNode.x, srcNode.y, srcNode.z);
+      edgePosArray.push(tgtNode.x, tgtNode.y, tgtNode.z);
+      edges.push(edge);
+    }
+  });
+  
+  const edgeGeo = new THREE.BufferGeometry();
+  edgeGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(edgePosArray), 3));
+  
+  const edgeMat = new THREE.LineBasicMaterial({
+    color: 0x7dd3fc,
+    transparent: true,
+    opacity: 0.15,
+    linewidth: 1
+  });
+  
+  edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
+  scene.add(edgeLines);
+  
+  // Populate story log
+  populateStoryLog(data.nodes);
   updateStats(data);
+}
+
+function populateStoryLog(nodes) {
+  const log = document.getElementById('story-log');
+  log.innerHTML = '';
+  
+  nodes.sort((a, b) => b.weight - a.weight);
+  
+  nodes.forEach(node => {
+    const entry = document.createElement('div');
+    entry.className = 'memory-entry';
+    entry.textContent = node.text;
+    entry.onclick = () => selectNode(node.id);
+    log.appendChild(entry);
+  });
+}
+
+function selectNode(nodeId) {
+  selectedNodeId = nodeId;
+  const node = nodes[nodeId];
+  
+  // Update UI
+  document.querySelectorAll('.memory-entry').forEach(el => el.classList.remove('active'));
+  document.querySelector(`[data-node-id="${nodeId}"]`)?.classList.add('active');
+  
+  // Show node info panel
+  document.getElementById('node-title').textContent = node.text;
+  document.getElementById('node-content').textContent = `Emotional weight: ${(node.weight * 100).toFixed(0)}%. This memory resonates through the cognitive field.`;
+  document.getElementById('node-weight').textContent = (node.weight * 100).toFixed(0) + '%';
+  
+  // Count connections
+  const connections = edges.filter(e => e.source === nodeId || e.target === nodeId).length;
+  document.getElementById('node-connections').textContent = connections;
+  
+  // Show tags
+  const metaDiv = document.getElementById('node-meta');
+  metaDiv.innerHTML = '';
+  if (node.tags && node.tags.length > 0) {
+    node.tags.forEach(tag => {
+      const tagEl = document.createElement('span');
+      tagEl.style.cssText = 'background: rgba(142,247,208,0.2); color: #8ef7d0; padding: 3px 8px; border-radius: 4px; font-size: 10px;';
+      tagEl.textContent = tag;
+      metaDiv.appendChild(tagEl);
+    });
+  }
+  
+  document.getElementById('node-info').style.display = 'block';
+  
+  // Animate camera to node
+  targetTheta = Math.atan2(node.z, node.x);
+  targetPhi = Math.acos(node.y / Math.sqrt(node.x*node.x + node.y*node.y + node.z*node.z));
+  targetRadius = 6.5;
+}
+
+function closeNodeInfo() {
+  document.getElementById('node-info').style.display = 'none';
+  selectedNodeId = null;
 }
 
 function updateStats(data) {
   document.getElementById('mem-count').textContent = data.nodes ? data.nodes.length : 0;
   document.getElementById('edge-count').textContent = data.edges ? data.edges.length : 0;
+  
+  if (data.nodes && data.nodes.length > 0) {
+    const avgWeight = data.nodes.reduce((sum, n) => sum + n.weight, 0) / data.nodes.length;
+    document.getElementById('avg-imp').textContent = avgWeight.toFixed(2);
+    document.getElementById('active-count').textContent = Math.ceil(data.nodes.length * 0.65);
+  }
 }
 
+// Camera controls
+function fitView() {
+  targetTheta = 0.85;
+  targetPhi = 1.28;
+  targetRadius = 12.8;
+  autoRotate = true;
+}
+
+function resetCamera() {
+  targetTheta = 0.85;
+  targetPhi = 1.28;
+  targetRadius = 12.8;
+  closeNodeInfo();
+  autoRotate = true;
+}
+
+function randomActivate() {
+  if (graphData && graphData.nodes.length > 0) {
+    const randomNode = graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)];
+    selectNode(randomNode.id);
+  }
+}
+
+// Query system
+document.getElementById('recall-btn').onclick = () => {
+  const query = document.getElementById('query').value.trim();
+  if (!query) return;
+  
+  // Simple semantic matching simulation
+  const keywords = query.toLowerCase().split(' ');
+  let matches = [];
+  
+  if (graphData) {
+    graphData.nodes.forEach(node => {
+      let score = 0;
+      const nodeText = node.text.toLowerCase();
+      const nodeTags = (node.tags || []).join(' ').toLowerCase();
+      
+      keywords.forEach(kw => {
+        if (nodeText.includes(kw)) score += 2;
+        if (nodeTags.includes(kw)) score += 1;
+      });
+      
+      if (score > 0) matches.push({ node, score });
+    });
+    
+    matches.sort((a, b) => b.score - a.score);
+    if (matches.length > 0) {
+      selectNode(matches[0].node.id);
+    }
+  }
+  
+  document.getElementById('query').value = '';
+};
+
+document.getElementById('query').onkeypress = (e) => {
+  if (e.key === 'Enter') document.getElementById('recall-btn').click();
+};
+
+// Mouse interaction for node selection
+window.addEventListener('click', (event) => {
+  if (event.target.closest('#query-bar') || event.target.closest('.panel')) return;
+  
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  
+  raycaster.setFromCamera(mouse, camera);
+  
+  if (nodesMesh) {
+    const intersects = raycaster.intersectObject(nodesMesh);
+    if (intersects.length > 0) {
+      const pointIndex = intersects[0].index;
+      for (let nodeId in nodes) {
+        if (nodes[nodeId].index === pointIndex) {
+          selectNode(nodeId);
+          break;
+        }
+      }
+    }
+  }
+});
+
+// Camera rotation on mouse move
+let isDragging = false;
+window.addEventListener('mousedown', () => { isDragging = true; autoRotate = false; });
+window.addEventListener('mouseup', () => { isDragging = false; });
+window.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    targetTheta += e.movementX * 0.005;
+    targetPhi -= e.movementY * 0.005;
+    targetPhi = Math.max(0.1, Math.min(Math.PI - 0.1, targetPhi));
+  } else if (autoRotate) {
+    targetTheta += 0.0001;
+  }
+});
+
+// Animation loop
 function animate() {
   requestAnimationFrame(animate);
   const t = Date.now() * 0.001;
+  
   core.scale.setScalar(1 + Math.sin(t*2)*0.04);
   coreGlow.scale.setScalar(1 + Math.sin(t*2)*0.08);
   stars.rotation.y += 0.00008;
+  
+  if (nodesMesh) {
+    nodesMesh.rotation.y += 0.0001;
+  }
+  
   updateCamera();
   renderer.render(scene, camera);
 }
 
+// Startup
 loadAraCore();
 animate();
 
