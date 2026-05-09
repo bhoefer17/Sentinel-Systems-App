@@ -240,7 +240,7 @@ let graphData = null;
 
 async function loadAraCore() {
   try {
-    const res = await fetch('./aracore.json');
+    const res = await fetch('./memory_graph.json');
     const data = await res.json();
     build(data);
   } catch(e) {
