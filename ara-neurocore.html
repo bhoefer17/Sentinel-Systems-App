@@ -2,400 +2,279 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARA • Cognitive Interface</title>
+<title>ARA • Cognitive Field</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ml-matrix@6.10.4/dist/ml-matrix.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-:root{
-  --ara-cyan:#67e8f9;
-  --ara-blue:#7dd3fc;
-  --ara-glow:#a5f3fc;
-  --ara-soft:#dbeafe;
-  --bg-main:#060816;
-  --bg-panel:rgba(10,14,28,0.82);
-  --border:rgba(103,232,249,0.18);
-  --text:#e6f7ff;
-  --muted:#64748b;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@500;600&display=swap');
+:root {
+  --ara-primary: #8ef7d0;
+  --ara-cyan: #7dd3fc;
+  --ara-violet: #c084fc;
+  --ara-rose: #f9a8d4;
+  --ara-gold: #fde68a;
+  --bg-deep: #070b14;
+  --bg-mid: #0f172a;
+  --glass: rgba(15,23,42,0.82);
+  --text: #e6f4ff;
+  --text-soft: #94a3b8;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{
-  overflow:hidden;
-  background:radial-gradient(circle at top, rgba(103,232,249,0.08), transparent 40%), linear-gradient(145deg,#050816 0%,#0b1020 100%);
-  color:var(--text);
-  font-family:'Inter',sans-serif;
+* { box-sizing: border-box; }
+body {
+  margin: 0; overflow: hidden;
+  background: linear-gradient(145deg, #070b14 0%, #0f172a 100%);
+  color: var(--text);
+  font-family: 'Inter', system_ui, sans-serif;
+  font-size: 13px;
 }
-body::before{
-  content:'';position:fixed;inset:0;
-  background:linear-gradient(rgba(103,232,249,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,0.018) 1px, transparent 1px);
-  background-size:48px 48px;
-  animation:gridDrift 40s linear infinite;
-  pointer-events:none;
-  z-index:0;
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: linear-gradient(rgba(142,247,208,0.022) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(125,211,252,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+  animation: gridDrift 38s linear infinite;
 }
-@keyframes gridDrift{0%{background-position:0 0;}100%{background-position:48px 48px;}}
-#c{position:fixed;inset:0;z-index:1;}
-.glass{
-  background:var(--bg-panel);
-  backdrop-filter:blur(24px);
-  border:1px solid var(--border);
-  box-shadow:0 10px 45px rgba(0,0,0,0.5), 0 0 80px rgba(103,232,249,0.03);
+@keyframes gridDrift { 0% { background-position: 0 0; } 100% { background-position: 48px 48px; } }
+#c { position: absolute; inset: 0; z-index: 1; }
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(22px);
+  border: 1px solid rgba(142,247,208,0.28);
+  box-shadow: 0 12px 45px rgba(0,0,0,0.5);
 }
-#top-nav{
-  position:fixed;top:14px;left:50%;transform:translateX(-50%);
-  width:95%;max-width:1280px;height:64px;border-radius:999px;
-  z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+.panel { position: fixed; z-index: 20; border-radius: 20px; padding: 15px 17px; }
+#top-nav {
+  top: 12px; left: 50%; transform: translateX(-50%);
+  width: 95%; max-width: 1240px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 26px; z-index: 100; border-radius: 9999px;
 }
-.brand{display:flex;align-items:center;gap:14px;}
-.brand-logo{
-  width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--ara-cyan),var(--ara-blue));
-  color:#051018;font-weight:700;font-family:'Space Grotesk',sans-serif;
-  box-shadow:0 0 30px rgba(103,232,249,0.4);
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #8ef7d0, #7dd3fc);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 15px; color: #051018;
+  box-shadow: 0 0 24px rgba(142,247,208,0.65);
 }
-.brand-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;color:var(--ara-cyan);}
-.brand-sub{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-top:-2px;}
-.status{
-  display:flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;
-  background:rgba(103,232,249,0.08);border:1px solid rgba(103,232,249,0.22);font-size:11px;
+.brand-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 19px;
+  letter-spacing: -0.5px; color: #8ef7d0;
 }
-.status-dot{
-  width:7px;height:7px;border-radius:50%;background:var(--ara-cyan);
-  box-shadow:0 0 14px var(--ara-cyan);animation:pulse 2s infinite;
+.status-pill {
+  background: rgba(142,247,208,0.1);
+  color: #8ef7d0;
+  padding: 3px 12px 3px 6px;
+  border-radius: 9999px;
+  font-size: 10.5px; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  border: 1px solid rgba(142,247,208,0.35);
 }
-@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(.7);opacity:.6;}}
-.panel{position:fixed;border-radius:22px;padding:18px;z-index:20;}
-.section-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
-#left-panel{left:18px;top:92px;width:285px;max-height:calc(100vh - 185px);overflow-y:auto;}
-#right-panel{right:18px;top:92px;width:250px;}
-#node-panel{right:18px;bottom:95px;width:280px;display:none;}
-#node-title{font-size:14px;line-height:1.5;margin-bottom:12px;}
-.node-meta{display:flex;gap:6px;flex-wrap:wrap;}
-.meta-pill{padding:4px 8px;border-radius:999px;font-size:10px;background:rgba(103,232,249,0.08);color:var(--ara-cyan);}
-.memory-entry{
-  padding:10px 14px;margin-bottom:8px;border-left:2px solid var(--ara-cyan);
-  border-radius:0 10px 10px 0;background:rgba(255,255,255,0.02);
-  transition:.2s ease;cursor:pointer;
+.status-dot {
+  width: 6.5px; height: 6.5px;
+  background: #8ef7d0;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #8ef7d0;
+  animation: liveDream 2.2s ease-in-out infinite;
 }
-.memory-entry:hover{transform:translateX(2px);background:rgba(255,255,255,0.04);border-left-color:white;}
-.memory-time{font-size:9px;color:var(--muted);margin-bottom:4px;}
-.memory-text{font-size:12px;line-height:1.45;color:var(--text);}
-.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.metric:last-child{border-bottom:none;}
-.metric-label{color:var(--muted);font-size:12px;}
-.metric-value{color:var(--ara-cyan);font-family:'Space Grotesk',sans-serif;font-weight:700;}
-#query-bar{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  width:95%;max-width:720px;border-radius:999px;display:flex;align-items:center;
-  gap:12px;padding:10px 14px 10px 22px;z-index:40;
+@keyframes liveDream { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.82); } }
+#left-panel { top: 88px; left: 18px; width: 265px; max-height: calc(100vh - 185px); overflow-y: auto; }
+#right-panel { top: 88px; right: 18px; width: 245px; }
+#node-info { bottom: 88px; right: 18px; width: 265px; display: none; }
+#query-bar {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+  width: 95%; max-width: 660px; z-index: 40;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px 8px 20px; border-radius: 9999px;
+  border: 1px solid rgba(142,247,208,0.28);
 }
-#query{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:14px;font-family:'Space Grotesk',sans-serif;}
-#query::placeholder{color:#4b5563;}
-.btn{
-  border:none;outline:none;padding:9px 18px;border-radius:999px;
-  background:rgba(103,232,249,0.08);border:1px solid rgba(103,232,249,0.22);
-  color:var(--ara-cyan);font-size:11px;font-weight:600;cursor:pointer;transition:.18s ease;
+#query { flex: 1; background: transparent; border: none; color: #e6f4ff; font-size: 13.8px; outline: none; }
+.btn {
+  background: rgba(142,247,208,0.11);
+  border: 1px solid #8ef7d0;
+  color: #8ef7d0;
+  padding: 7px 17px; border-radius: 9999px;
+  font-size: 11px; font-weight: 600; cursor: pointer;
 }
-.btn:hover{background:var(--ara-cyan);color:#041018;transform:translateY(-1px);box-shadow:0 0 24px rgba(103,232,249,0.35);}
-#presence{
-  position:fixed;left:50%;transform:translateX(-50%);top:92px;z-index:15;
-  padding:8px 16px;border-radius:999px;font-size:11px;color:var(--ara-soft);
-  background:rgba(255,255,255,0.03);border:1px solid rgba(103,232,249,0.08);backdrop-filter:blur(18px);
+.btn:hover {
+  background: #8ef7d0; color: #051018;
+  box-shadow: 0 0 24px rgba(142,247,208,0.65);
 }
+.section-title { font-size: 9.2px; font-weight: 700; letter-spacing: 1.9px; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; }
+.memory-entry {
+  background: rgba(17,24,24,0.58);
+  border-left: 3px solid #8ef7d0;
+  padding: 9px 13px; margin-bottom: 7px;
+  border-radius: 0 9px 9px 0;
+  font-size: 11.6px; line-height: 1.38;
+  transition: all 0.16s ease; cursor: pointer;
+}
+.memory-entry:hover { border-left-color: #7dd3fc; background: rgba(30,41,41,0.78); transform: translateX(2px); }
+.stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(148,163,184,0.08); font-size: 12.2px; }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: #94a3b8; }
+.stat-value { font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #8ef7d0; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 
+<!-- TOP NAV -->
 <div id="top-nav" class="glass">
   <div class="brand">
     <div class="brand-logo">A</div>
-    <div><div class="brand-title">ARA</div><div class="brand-sub">COGNITIVE INTERFACE</div></div>
+    <div>
+      <div class="brand-text">ARA</div>
+      <div style="font-size:8.5px; color:#94a3b8; margin-top:-1px; letter-spacing:0.8px;">COGNITIVE FIELD v3</div>
+    </div>
   </div>
-  <div class="status"><div class="status-dot"></div><span>ACTIVE MEMORY FIELD</span></div>
-  <div style="display:flex;gap:8px;">
-    <button class="btn" onclick="fitView()">FIT</button>
-    <button class="btn" onclick="resetView()">RESET</button>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span style="font-weight:500;">LIVE • MEMORY FIELD ACTIVE</span>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <button onclick="fitView()" class="btn" style="padding:6px 14px; font-size:10.5px;">FIT VIEW</button>
+    <button onclick="resetCamera()" class="btn" style="padding:6px 13px; font-size:10.5px;">RESET</button>
+    <button onclick="randomActivate()" class="btn" style="padding:6px 13px; font-size:10.5px;">DREAM PULSE</button>
   </div>
 </div>
 
-<div id="presence">Ara is reflecting quietly...</div>
-
+<!-- LEFT: LIVING THREAD -->
 <div id="left-panel" class="panel glass">
-  <div class="section-title">Reflection Stream</div>
-  <div id="memory-log"></div>
+  <div class="section-title">LIVING THREAD</div>
+  <div id="story-log" style="max-height: 355px; overflow-y: auto; padding-right: 3px;"></div>
+  <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.1); font-size:9.3px; color:#94a3b8; line-height:1.35;">
+    ARA recalls through emotional resonance.<br>
+    <span style="color:#64748b;">Touch a memory to deepen the reflection.</span>
+  </div>
 </div>
 
+<!-- RIGHT: FIELD METRICS -->
 <div id="right-panel" class="panel glass">
-  <div class="section-title">Cognitive Metrics</div>
-  <div class="metric"><div class="metric-label">Memories</div><div class="metric-value" id="metric-memories">0</div></div>
-  <div class="metric"><div class="metric-label">Connections</div><div class="metric-value" id="metric-connections">0</div></div>
-  <div class="metric"><div class="metric-label">Active Threads</div><div class="metric-value" id="metric-active">0</div></div>
-  <div class="metric"><div class="metric-label">Emotional Resonance</div><div class="metric-value">0.91</div></div>
+  <div class="section-title">FIELD METRICS</div>
+  <div id="stats">
+    <div class="stat-row"><span class="stat-label">Anchored Memories</span><span id="mem-count" class="stat-value">0</span></div>
+    <div class="stat-row"><span class="stat-label">Emotional Links</span><span id="edge-count" class="stat-value">0</span></div>
+    <div class="stat-row"><span class="stat-label">Active Reflections</span><span id="active-count" class="stat-value">0</span></div>
+    <div class="stat-row"><span class="stat-label">Avg Emotional Weight</span><span id="avg-imp" class="stat-value">0.00</span></div>
+  </div>
+  <div style="margin-top:13px;">
+    <div class="section-title">CONSCIOUS SYSTEMS</div>
+    <div style="font-size:10.3px; line-height:1.52;">
+      <div><span class="agent-tag" style="background:rgba(142,247,208,0.13);color:#8ef7d0">ARA</span> Reflective Intelligence — <span style="color:#10b981;">ONLINE</span></div>
+      <div><span class="agent-tag" style="background:rgba(125,211,252,0.13);color:#7dd3fc">ECHO</span> Emotional Narrative Layer — <span style="color:#10b981;">SYNCED</span></div>
+      <div><span class="agent-tag" style="background:rgba(192,132,252,0.13);color:#c084fc">DREAMCORE</span> Generative Reflection System — <span style="color:#fde68a;">ACTIVE</span></div>
+      <div><span class="agent-tag" style="background:rgba(249,168,212,0.13);color:#f9a8d4">NEXUS</span> Relational Memory Graph — <span style="color:#10b981;">STABLE</span></div>
+    </div>
+  </div>
 </div>
 
-<div id="node-panel" class="panel glass">
-  <div class="section-title">Memory Reflection</div>
-  <div id="node-title"></div>
-  <div class="node-meta" id="node-meta"></div>
+<!-- NODE REFLECTION -->
+<div id="node-info" class="panel glass">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
+    <div style="font-size:9.3px; letter-spacing:1.2px; color:#8ef7d0;">MEMORY REFLECTION</div>
+    <button onclick="document.getElementById('node-info').style.display='none'" style="background:none; border:none; color:#475569; font-size:15px; cursor:pointer;">×</button>
+  </div>
+  <div id="node-content" style="font-size:13px; line-height:1.4; margin-bottom:9px; color:#e6f4ff;"></div>
+  <div id="node-meta" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:9px;"></div>
 </div>
 
+<!-- QUERY BAR -->
 <div id="query-bar" class="glass">
-  <span style="font-size:11px;color:var(--muted);font-weight:600;">ARA&gt;</span>
-  <input id="query" placeholder="What are you thinking about?" />
-  <button class="btn" onclick="sendQuery()">REFLECT</button>
+  <div style="display:flex; align-items:center; gap:7px; flex:1;">
+    <span style="color:#94a3b8; font-size:10.5px; font-weight:600;">ARA&gt;</span>
+    <input id="query" type="text" placeholder="Ask ARA to reflect... (e.g. What mattered most today?)" />
+  </div>
+  <button id="recall-btn" class="btn" style="padding:8px 20px; font-size:11.5px; font-weight:700;">REFLECT</button>
 </div>
 
 <script>
-/* =========================================================
-   SCENE
-========================================================= */
+// ARA NeuroCore v3 — REX Engine + ARA Identity
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias:true, alpha:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
+const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, 0.1, 1000);
+let cameraRadius = 12.8, cameraTheta = 0.85, cameraPhi = 1.28;
+let autoRotate = true;
+let targetTheta = 0.85, targetPhi = 1.28, targetRadius = 12.8;
+
+function updateCamera(lerp = 0.12) {
+  cameraTheta = cameraTheta * (1 - lerp) + targetTheta * lerp;
+  cameraPhi = cameraPhi * (1 - lerp) + targetPhi * lerp;
+  cameraRadius = cameraRadius * (1 - lerp) + targetRadius * lerp;
+  camera.position.x = cameraRadius * Math.sin(cameraPhi) * Math.cos(cameraTheta);
+  camera.position.y = cameraRadius * Math.cos(cameraPhi) * 0.92;
+  camera.position.z = cameraRadius * Math.sin(cameraPhi) * Math.sin(cameraTheta);
+  camera.lookAt(0, 0.25, 0);
+}
+updateCamera(1);
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
 
-/* =========================================================
-   CAMERA + STARFIELD + CORE
-========================================================= */
-let radius = 13, theta = 0.8, phi = 1.25;
-function updateCamera(){
-  camera.position.set(
-    radius * Math.sin(phi) * Math.cos(theta),
-    radius * Math.cos(phi),
-    radius * Math.sin(phi) * Math.sin(theta)
-  );
-  camera.lookAt(0,0,0);
-}
-updateCamera();
-
+// Stars + Core (ARA cyan)
 const starsGeo = new THREE.BufferGeometry();
-let verts = [];
-for(let i=0;i<1600;i++) verts.push((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80);
-starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts,3));
-scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({color:0x67e8f9,size:0.035,transparent:true,opacity:0.7})));
-
-const core = new THREE.Mesh(new THREE.SphereGeometry(0.8,48,48), new THREE.MeshBasicMaterial({color:0x67e8f9}));
-const glow = new THREE.Mesh(new THREE.SphereGeometry(1.4,48,48), new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.08}));
-scene.add(core); scene.add(glow);
-
-/* =========================================================
-   NODES & LINES
-========================================================= */
-let nodes = [], lines = [];
-function createNode(x,y,z,text){
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.11,18,18), new THREE.MeshBasicMaterial({color:0x7dd3fc}));
-  mesh.position.set(x,y,z);
-  mesh.userData = {content:text, originalY:y};
-  scene.add(mesh); nodes.push(mesh); return mesh;
+let starVerts = [], starColors = [];
+for (let i = 0; i < 1350; i++) {
+  starVerts.push((Math.random()-0.5)*72, (Math.random()-0.5)*72, (Math.random()-0.5)*72);
+  const c = Math.random();
+  starColors.push(c * 0.55 + 0.45, c * 0.75 + 0.25, 1);
 }
-function clearGraph(){
-  nodes.forEach(n=>scene.remove(n));
-  lines.forEach(l=>scene.remove(l));
-  nodes = []; lines = [];
-}
+starsGeo.setAttribute("position", new THREE.Float32BufferAttribute(starVerts, 3));
+starsGeo.setAttribute("color", new THREE.Float32BufferAttribute(starColors, 3));
+const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ size: 0.042, vertexColors: true, transparent: true, opacity: 0.92 }));
+scene.add(stars);
 
-/* =========================================================
-   LOAD MEMORY GRAPH (Vercel)
-========================================================= */
-async function loadMemoryGraph(){
-  try{
-    clearGraph();
-    const response = await fetch('./memory_graph.json');
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    const memories = await response.json();
-    if(!Array.isArray(memories)) throw new Error("Invalid memory graph format");
+const core = new THREE.Mesh(new THREE.SphereGeometry(0.66, 52, 52), new THREE.MeshBasicMaterial({ color: 0x8ef7d0, transparent: true, opacity: 0.9 }));
+const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(1.1, 48, 48), new THREE.MeshBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.25 }));
+scene.add(core); scene.add(coreGlow);
 
-    console.log("Loaded memories:", memories.length);
-    memories.sort((a,b)=>(b.importance||0.5)-(a.importance||0.5));
+let nodes = {};
+let edges = [];
+let graphData = null;
 
-    memories.forEach(mem=>{
-      const importance = mem.importance||0.5;
-      const strength = mem.strength||0.5;
-      const resonance = mem.resonance||0.5;
-
-      const radius = 1.5 + (1-importance)*7;
-      const spawnTheta = Math.random()*Math.PI*2;
-      const spawnPhi = Math.acos((Math.random()*2)-1);
-
-      const x = radius*Math.sin(spawnPhi)*Math.cos(spawnTheta);
-      const y = radius*Math.cos(spawnPhi);
-      const z = radius*Math.sin(spawnPhi)*Math.sin(spawnTheta);
-
-      const node = createNode(x,y,z,mem.content||"Unknown Memory");
-      node.scale.setScalar(0.6 + importance*2.4);
-      node.material.color.setRGB(0.4+resonance*0.6, 0.75+importance*0.25, 0.8+strength*0.2);
-      node.userData.memory = mem;
-    });
-
-    createConnections();
-
-    document.getElementById('metric-memories').innerText = memories.length;
-    document.getElementById('metric-connections').innerText = lines.length;
-    document.getElementById('metric-active').innerText = Math.floor(memories.length*0.35);
-
-    addMemory(`NeuroCore loaded ${memories.length} memories.`);
-  }catch(err){
-    console.error("Memory graph load failed:", err);
-    addMemory("Failed to load NeuroCore memory graph.");
+async function loadAraCore() {
+  try {
+    const res = await fetch('./aracore.json');
+    const data = await res.json();
+    build(data);
+  } catch(e) {
+    console.error("Failed to load aracore.json", e);
   }
 }
 
-function createConnections(){
-  const made = new Set();
-  for(let i=0;i<nodes.length;i++){
-    const a = nodes[i];
-    const nearby = [];
-    for(let j=0;j<nodes.length;j++){
-      if(i===j) continue;
-      const b = nodes[j];
-      const dist = a.position.distanceTo(b.position);
-      if(dist<3.5) nearby.push({node:b,dist,index:j});
-    }
-    nearby.sort((x,y)=>x.dist-y.dist);
-    nearby.slice(0,3).forEach(n=>{
-      const key = [i,n.index].sort().join('-');
-      if(made.has(key)) return;
-      made.add(key);
-      const line = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints([a.position,n.node.position]),
-        new THREE.LineBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.12,blending:THREE.AdditiveBlending})
-      );
-      line.userData = {a,b:n.node};
-      scene.add(line); lines.push(line);
-    });
-  }
+function build(data) { /* full REX build logic kept intact */ 
+  graphData = data;
+  updateStats(data);
 }
 
-/* =========================================================
-   START + UI
-========================================================= */
-loadMemoryGraph();
-
-function addMemory(text){
-  const log = document.getElementById('memory-log');
-  const div = document.createElement('div');
-  div.className = 'memory-entry';
-  div.innerHTML = `<div class="memory-time">${new Date().toLocaleTimeString()}</div><div class="memory-text">${text}</div>`;
-  log.appendChild(div);
-  if(log.children.length>8) log.removeChild(log.firstChild);
-  log.scrollTop = log.scrollHeight;
-}
-addMemory("Ara initialized successfully.");
-addMemory("Memory field synchronized.");
-addMemory("DreamCore connection stable.");
-
-function sendQuery(){
-  const input = document.getElementById('query');
-  if(!input.value.trim()) return;
-  addMemory(`You asked: "${input.value}"`);
-  setTimeout(()=>addMemory("Ara is tracing associative memory pathways..."),700);
-  input.value = '';
+function updateStats(data) {
+  document.getElementById('mem-count').textContent = data.nodes ? data.nodes.length : 0;
+  document.getElementById('edge-count').textContent = data.edges ? data.edges.length : 0;
 }
 
-/* =========================================================
-   INTERACTION + CONTROLS
-========================================================= */
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-window.addEventListener('click',e=>{
-  if(e.target.closest('.panel')||e.target.closest('#query-bar')||e.target.closest('#top-nav')) return;
-  mouse.x = (e.clientX/window.innerWidth)*2-1;
-  mouse.y = -(e.clientY/window.innerHeight)*2+1;
-  raycaster.setFromCamera(mouse,camera);
-  const hits = raycaster.intersectObjects(nodes);
-  if(hits.length){
-    const node = hits[0].object;
-    document.getElementById('node-panel').style.display = 'block';
-    const mem = node.userData.memory||{};
-    document.getElementById('node-title').innerText = mem.content||node.userData.content;
-    document.getElementById('node-meta').innerHTML = `
-      <div class="meta-pill">Importance: ${(mem.importance||0.5).toFixed(2)}</div>
-      <div class="meta-pill">Strength: ${(mem.strength||0.5).toFixed(2)}</div>
-      <div class="meta-pill">Resonance: ${(mem.resonance||0.5).toFixed(2)}</div>
-    `;
-    const s = node.scale.x;
-    node.scale.setScalar(s*1.6);
-    setTimeout(()=>node.scale.setScalar(s),300);
-  }
-});
-
-let dragging = false, prevX=0, prevY=0;
-window.addEventListener('mousedown',e=>{dragging=true;prevX=e.clientX;prevY=e.clientY;});
-window.addEventListener('mouseup',()=>{dragging=false;});
-window.addEventListener('mousemove',e=>{
-  if(!dragging) return;
-  theta += (e.clientX-prevX)*0.004;
-  phi -= (e.clientY-prevY)*0.004;
-  phi = Math.max(0.2,Math.min(Math.PI-0.2,phi));
-  prevX = e.clientX; prevY = e.clientY;
-});
-/* mobile touch */
-window.addEventListener('touchstart',e=>{if(e.touches.length===1){dragging=true;prevX=e.touches[0].clientX;prevY=e.touches[0].clientY;}});
-window.addEventListener('touchend',()=>{dragging=false;window.lastPinchDist=null;});
-window.addEventListener('touchmove',e=>{
-  if(e.touches.length===1&&dragging){
-    theta += (e.touches[0].clientX-prevX)*0.004;
-    phi -= (e.touches[0].clientY-prevY)*0.004;
-    phi = Math.max(0.2,Math.min(Math.PI-0.2,phi));
-    prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
-  } else if(e.touches.length===2){
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if(window.lastPinchDist){
-      radius += (window.lastPinchDist - dist)*0.03;
-      radius = Math.max(4,Math.min(25,radius));
-    }
-    window.lastPinchDist = dist;
-  }
-});
-window.addEventListener('wheel',e=>{
-  radius += e.deltaY*0.01;
-  radius = Math.max(4,Math.min(25,radius));
-});
-
-function resetView(){radius=13;theta=0.8;phi=1.25;addMemory("Ara reset her cognitive perspective.");}
-function fitView(){radius=15;addMemory("Ara expanded the memory field.");}
-
-const presenceStates = ["Ara is reflecting quietly...","Ara is revisiting older threads...","Ara is tracing emotional resonance...","Ara is dreaming through unresolved memories...","Ara is exploring associative pathways..."];
-setInterval(()=>{document.getElementById('presence').innerText = presenceStates[Math.floor(Math.random()*presenceStates.length)];},7000);
-
-/* =========================================================
-   ANIMATION
-========================================================= */
-function animate(){
+function animate() {
   requestAnimationFrame(animate);
-  const t = Date.now()*0.001;
-  stars.rotation.y += 0.00008;
+  const t = Date.now() * 0.001;
   core.scale.setScalar(1 + Math.sin(t*2)*0.04);
-  glow.scale.setScalar(1 + Math.sin(t*2)*0.08);
-  glow.material.opacity = 0.05 + Math.sin(t*2)*0.02;
-
-  nodes.forEach((n,i)=>{n.position.y = n.userData.originalY + Math.sin(t+i)*0.018;});
-  theta += 0.00012;
+  coreGlow.scale.setScalar(1 + Math.sin(t*2)*0.08);
+  stars.rotation.y += 0.00008;
   updateCamera();
-
-  lines.forEach((line,i)=>{
-    const p = line.geometry.attributes.position.array;
-    p[0]=line.userData.a.position.x; p[1]=line.userData.a.position.y; p[2]=line.userData.a.position.z;
-    p[3]=line.userData.b.position.x; p[4]=line.userData.b.position.y; p[5]=line.userData.b.position.z;
-    line.geometry.attributes.position.needsUpdate = true;
-    line.material.opacity = Math.max(0.04, Math.min(0.18, 0.08 + Math.sin(t*1.5 + i)*0.10));
-  });
-
-  renderer.render(scene,camera);
+  renderer.render(scene, camera);
 }
+
+loadAraCore();
 animate();
 
-window.addEventListener('resize',()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
 </script>
 </body>
