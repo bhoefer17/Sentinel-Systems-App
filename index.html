@@ -502,28 +502,39 @@
 </div>
 
 <script>
-// Starfield + Nebula code (unchanged from your version)
+// Starfield + Nebula code
 const starCanvas = document.getElementById('starfield');
 const starCtx = starCanvas.getContext('2d');
 let stars = [], dustClouds = [], shootingStar = null, shootTimer = 0;
+
 function initStars() {
   starCanvas.width = window.innerWidth;
   starCanvas.height = window.innerHeight;
   const W = starCanvas.width, H = starCanvas.height;
+
   stars = Array.from({length: 320}, () => ({
-    x: Math.random() * W, y: Math.random() * H,
+    x: Math.random() * W,
+    y: Math.random() * H,
     r: Math.pow(Math.random(), 2.5) * 1.8 + 0.15,
     a: Math.random() * 0.7 + 0.3,
     da: (Math.random() - 0.5) * 0.003,
-    color: Math.random() > 0.85 ? `rgba(180,210,255,` : Math.random() > 0.7 ? `rgba(255,240,200,` : `rgba(255,255,255,`
+    color: Math.random() > 0.85
+      ? `rgba(180,210,255,`
+      : Math.random() > 0.7
+      ? `rgba(255,240,200,`
+      : `rgba(255,255,255,`
   }));
+
   dustClouds = Array.from({length: 6}, () => ({
-    x: Math.random() * W, y: Math.random() * H,
-    rx: 80 + Math.random() * 160, ry: 40 + Math.random() * 80,
+    x: Math.random() * W,
+    y: Math.random() * H,
+    rx: 80 + Math.random() * 160,
+    ry: 40 + Math.random() * 80,
     a: Math.random() * 0.04 + 0.01,
-    hue: [200, 220, 260, 180][Math.floor(Math.random()*4)]
+    hue: [200, 220, 260, 180][Math.floor(Math.random() * 4)]
   }));
 }
+
 function spawnShootingStar() {
   const W = starCanvas.width, H = starCanvas.height;
   shootingStar = {
@@ -531,16 +542,21 @@ function spawnShootingStar() {
     y: Math.random() * H * 0.3,
     len: 80 + Math.random() * 120,
     speed: 8 + Math.random() * 6,
-    a: 1, life: 1
+    a: 1,
+    life: 1
   };
 }
+
 function drawStars() {
   const W = starCanvas.width, H = starCanvas.height;
   starCtx.clearRect(0, 0, W, H);
+
+  // Dust clouds
   dustClouds.forEach(d => {
     const grad = starCtx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.rx);
     grad.addColorStop(0, `hsla(${d.hue},60%,70%,${d.a})`);
     grad.addColorStop(1, `hsla(${d.hue},60%,70%,0)`);
+
     starCtx.save();
     starCtx.scale(1, d.ry / d.rx);
     starCtx.beginPath();
@@ -549,10 +565,13 @@ function drawStars() {
     starCtx.fill();
     starCtx.restore();
   });
+
+  // Stars
   stars.forEach(s => {
     s.a += s.da;
     if (s.a < 0.15) s.da = Math.abs(s.da);
     if (s.a > 1) s.da = -Math.abs(s.da);
+
     if (s.r > 1.2) {
       const grd = starCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3);
       grd.addColorStop(0, `${s.color}${(s.a * 0.6).toFixed(2)})`);
@@ -562,20 +581,35 @@ function drawStars() {
       starCtx.fillStyle = grd;
       starCtx.fill();
     }
+
     starCtx.beginPath();
     starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
     starCtx.fillStyle = `${s.color}${s.a.toFixed(2)})`;
     starCtx.fill();
   });
+
+  // Shooting star
   shootTimer++;
-  if (shootTimer > 280 && !shootingStar) { spawnShootingStar(); shootTimer = 0; }
+  if (shootTimer > 280 && !shootingStar) {
+    spawnShootingStar();
+    shootTimer = 0;
+  }
+
   if (shootingStar) {
     const ss = shootingStar;
-    ss.x += ss.speed; ss.y += ss.speed * 0.5; ss.life -= 0.025;
-    if (ss.life <= 0) { shootingStar = null; }
-    else {
+    ss.x += ss.speed;
+    ss.y += ss.speed * 0.5;
+    ss.life -= 0.025;
+    if (ss.life <= 0) {
+      shootingStar = null;
+    } else {
       starCtx.save();
-      const grad = starCtx.createLinearGradient(ss.x - ss.len, ss.y - ss.len*0.5, ss.x, ss.y);
+      const grad = starCtx.createLinearGradient(
+        ss.x - ss.len,
+        ss.y - ss.len * 0.5,
+        ss.x,
+        ss.y
+      );
       grad.addColorStop(0, `rgba(255,255,255,0)`);
       grad.addColorStop(1, `rgba(255,255,255,${ss.life * 0.8})`);
       starCtx.beginPath();
@@ -587,36 +621,43 @@ function drawStars() {
       starCtx.restore();
     }
   }
+
   requestAnimationFrame(drawStars);
 }
+
 initStars();
 drawStars();
 window.addEventListener('resize', initStars);
+
 function paintNebula(canvasId, h1, h2, h3) {
   const c = document.getElementById(canvasId);
   if (!c) return;
+
   const dpr = window.devicePixelRatio || 1;
   c.width = c.offsetWidth * dpr;
   c.height = c.offsetHeight * dpr;
   const ctx = c.getContext('2d');
   ctx.scale(dpr, dpr);
   const w = c.offsetWidth, h = c.offsetHeight;
+
   const blobs = [
-    [0.08, 0.5, w*0.38, h*0.9, h1, 70, 60, 0.18],
-    [0.18, 0.5, w*0.22, h*0.7, h1, 80, 75, 0.22],
-    [0.85, 0.5, w*0.35, h*0.85, h2, 65, 55, 0.16],
-    [0.75, 0.5, w*0.20, h*0.65, h2, 75, 70, 0.20],
-    [0.5, 0.5, w*0.50, h*1.2, h3, 40, 30, 0.08],
-    [0.12, 0.3, w*0.15, h*0.4, h1, 90, 85, 0.14],
-    [0.88, 0.7, w*0.14, h*0.35, h2, 85, 80, 0.12],
-    [0.5, 0.15, w*0.60, h*0.50, h3, 50, 45, 0.06],
+    [0.08, 0.5, w * 0.38, h * 0.9, h1, 70, 60, 0.18],
+    [0.18, 0.5, w * 0.22, h * 0.7, h1, 80, 75, 0.22],
+    [0.85, 0.5, w * 0.35, h * 0.85, h2, 65, 55, 0.16],
+    [0.75, 0.5, w * 0.20, h * 0.65, h2, 75, 70, 0.20],
+    [0.5, 0.5, w * 0.50, h * 1.2, h3, 40, 30, 0.08],
+    [0.12, 0.3, w * 0.15, h * 0.4, h1, 90, 85, 0.14],
+    [0.88, 0.7, w * 0.14, h * 0.35, h2, 85, 80, 0.12],
+    [0.5, 0.15, w * 0.60, h * 0.50, h3, 50, 45, 0.06],
   ];
+
   blobs.forEach(([cxp, cyp, rx, ry, hue, sat, lit, a]) => {
     const cx = cxp * w, cy = cyp * h;
     const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
     grad.addColorStop(0, `hsla(${hue},${sat}%,${lit}%,${a})`);
     grad.addColorStop(0.4, `hsla(${hue},${sat-10}%,${lit-10}%,${a*0.6})`);
     grad.addColorStop(1, `hsla(${hue},${sat}%,${lit}%,0)`);
+
     ctx.save();
     ctx.scale(1, ry / rx);
     ctx.beginPath();
@@ -625,6 +666,7 @@ function paintNebula(canvasId, h1, h2, h3) {
     ctx.fill();
     ctx.restore();
   });
+
   for (let i = 0; i < 55; i++) {
     const sx = Math.random() * w;
     const sy = Math.random() * h;
@@ -636,6 +678,7 @@ function paintNebula(canvasId, h1, h2, h3) {
     ctx.fill();
   }
 }
+
 setTimeout(() => {
   paintNebula('neural-ara', 195, 220, 210);
   paintNebula('neural-atlas', 28, 45, 35);
@@ -645,9 +688,9 @@ setTimeout(() => {
 // Navigation
 let currentAgent = null;
 const agentConfig = {
-  ara: { name:'Ara', color:'var(--ara-primary)', theme:'theme-ara', bg:'agent-bg-ara', placeholder:'Ask Ara...' },
-  atlas: { name:'Atlas', color:'var(--atlas-primary)', theme:'theme-atlas', bg:'agent-bg-atlas', placeholder:'Ask Atlas...' },
-  rex: { name:'Rex', color:'var(--rex-primary)', theme:'theme-rex', bg:'agent-bg-rex', placeholder:'Ask Rex...' }
+  ara:   { name: 'Ara',   color: 'var(--ara-primary)',   theme: 'theme-ara',   bg: 'agent-bg-ara',   placeholder: 'Ask Ara...' },
+  atlas: { name: 'Atlas', color: 'var(--atlas-primary)', theme: 'theme-atlas', bg: 'agent-bg-atlas', placeholder: 'Ask Atlas...' },
+  rex:   { name: 'Rex',   color: 'var(--rex-primary)',   theme: 'theme-rex',   bg: 'agent-bg-rex',   placeholder: 'Ask Rex...' }
 };
 
 function openAgent(id) {
@@ -657,34 +700,45 @@ function openAgent(id) {
   view.className = `screen agent-screen ${cfg.theme}`;
   document.getElementById('agent-title').textContent = cfg.name;
   document.getElementById('chat-input').placeholder = cfg.placeholder;
-  ['ara','atlas','rex'].forEach(a => {
-    document.getElementById(`agent-bg-${a}`).style.opacity = a===id ? '1' : '0';
+
+  ['ara', 'atlas', 'rex'].forEach(a => {
+    document.getElementById(`agent-bg-${a}`).style.opacity = a === id ? '1' : '0';
   });
+
   renderMessages(id);
+
   const home = document.getElementById('home');
   home.classList.add('exit');
-  setTimeout(() => { home.classList.remove('active','exit'); }, 400);
+  setTimeout(() => {
+    home.classList.remove('active', 'exit');
+  }, 400);
+
   view.classList.add('active');
   starCanvas.style.opacity = '0.4';
 }
- 
+
 function goHome() {
   const home = document.getElementById('home');
   const view = document.getElementById('agent-view');
   view.classList.add('exit');
-  setTimeout(() => { view.classList.remove('active','exit'); }, 400);
+  setTimeout(() => {
+    view.classList.remove('active', 'exit');
+  }, 400);
   home.classList.add('active');
-  ['ara','atlas','rex'].forEach(a => {
+
+  ['ara', 'atlas', 'rex'].forEach(a => {
     document.getElementById(`agent-bg-${a}`).style.opacity = '0';
   });
   starCanvas.style.opacity = '1';
 }
 
 const messageStore = { ara: [], atlas: [], rex: [] };
+
 function renderMessages(agentId) {
   const box = document.getElementById('chat-box');
   const msgs = messageStore[agentId];
   box.innerHTML = '';
+
   if (msgs.length === 0) {
     const e = document.createElement('div');
     e.className = 'empty-state';
@@ -692,16 +746,18 @@ function renderMessages(agentId) {
     box.appendChild(e);
     return;
   }
+
   msgs.forEach(m => {
     const el = document.createElement('div');
     el.className = `msg ${m.role === 'user' ? 'msg-user' : 'msg-agent'}`;
     el.textContent = m.text;
     box.appendChild(el);
   });
+
   box.scrollTop = box.scrollHeight;
 }
 
-// ==================== BACKEND INTEGRATION ====================
+// BACKEND INTEGRATION
 const BACKEND_URL = "http://172.27.14.151:5000";
 
 async function sendMessage() {
@@ -737,39 +793,27 @@ async function sendMessage() {
     if (loadingEl) loadingEl.remove();
 
     if (data.success && data.reply) {
-      messageStore[currentAgent].push({ 
-        role: 'agent', 
-        text: data.reply 
+      messageStore[currentAgent].push({
+        role: 'agent',
+        text: data.reply
       });
     } else {
-      messageStore[currentAgent].push({ 
-        role: 'agent', 
-        text: data.error || "Sorry, I couldn't process that right now." 
+      messageStore[currentAgent].push({
+        role: 'agent',
+        text: data.error || "Sorry, I couldn't process that right now."
       });
     }
-
   } catch (error) {
     console.error("Backend connection error:", error);
     const loadingEl = document.getElementById(loadingId);
     if (loadingEl) loadingEl.remove();
-    messageStore[currentAgent].push({ 
-      role: 'agent', 
-      text: "Connection lost to Ara Runtime. Trying again..." 
+    messageStore[currentAgent].push({
+      role: 'agent',
+      text: "Connection lost to Ara Runtime. Trying again..."
     });
   }
 
   renderMessages(currentAgent);
-}
-
-  } catch (error) {
-    console.error("Connection error:", error);
-    document.getElementById(loadingId).remove();
-    messageStore[currentAgent].push({ 
-      role: 'agent', 
-      text: "Sorry, couldn't connect to Rex right now." 
-    });
-    renderMessages(currentAgent);
-  }
 }
 
 function addToNeurocore() {
@@ -777,7 +821,10 @@ function addToNeurocore() {
   const orig = btn.innerHTML;
   btn.innerHTML = '✓ Saved to Neurocore';
   btn.style.opacity = '0.7';
-  setTimeout(() => { btn.innerHTML = orig; btn.style.opacity = '1'; }, 2000);
+  setTimeout(() => {
+    btn.innerHTML = orig;
+    btn.style.opacity = '1';
+  }, 2000);
 }
 
 function toggleMic() {
@@ -788,7 +835,7 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendMessage();
 });
 
-// ==================== 3D MEMORY VISUALIZATION ====================
+// 3D MEMORY VISUALIZATION
 let memoryScene, memoryCamera, memoryRenderer, memoryNodes = [], memoryLines = [];
 let memoryAnimationId = null;
 
@@ -796,23 +843,22 @@ function initMemoryGraph() {
   const canvas = document.getElementById('memory-canvas');
   const w = window.innerWidth;
   const h = window.innerHeight;
-  
+
   memoryScene = new THREE.Scene();
   memoryCamera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-  memoryRenderer = new THREE.WebGLRenderer({ 
-    canvas: canvas, 
-    antialias: true, 
-    alpha: true, 
-    powerPreference: 'high-performance' 
+  memoryRenderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: true,
+    powerPreference: 'high-performance'
   });
   memoryRenderer.setSize(w, h);
   memoryRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   memoryRenderer.setClearColor(0x000000, 1);
 
-  // Position camera
   memoryCamera.position.z = 25;
 
-  // Background starfield
+  // Background stars
   const starsGeo = new THREE.BufferGeometry();
   let verts = [];
   for (let i = 0; i < 2000; i++) {
@@ -823,32 +869,31 @@ function initMemoryGraph() {
     );
   }
   starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-  const starsMat = new THREE.PointsMaterial({ 
-    color: 0x4db8ff, 
-    size: 0.15, 
-    transparent: true, 
-    opacity: 0.6 
+  const starsMat = new THREE.PointsMaterial({
+    color: 0x4db8ff,
+    size: 0.15,
+    transparent: true,
+    opacity: 0.6
   });
   const starsPoints = new THREE.Points(starsGeo, starsMat);
   memoryScene.add(starsPoints);
 
-  // Central core
+  // Core
   const coreGeo = new THREE.SphereGeometry(1.2, 32, 32);
   const coreMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
   const core = new THREE.Mesh(coreGeo, coreMat);
   memoryScene.add(core);
 
-  // Glow around core
   const glowGeo = new THREE.SphereGeometry(2.5, 32, 32);
-  const glowMat = new THREE.MeshBasicMaterial({ 
-    color: 0x00e5ff, 
-    transparent: true, 
-    opacity: 0.15 
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: 0x00e5ff,
+    transparent: true,
+    opacity: 0.15
   });
   const glow = new THREE.Mesh(glowGeo, glowMat);
   memoryScene.add(glow);
 
-  // Create memory nodes in orbit
+  // Nodes
   const nodeCount = 12;
   for (let i = 0; i < nodeCount; i++) {
     const angle = (i / nodeCount) * Math.PI * 2;
@@ -858,48 +903,45 @@ function initMemoryGraph() {
     const z = Math.sin(angle * 2.3) * 3;
 
     const nodeGeo = new THREE.SphereGeometry(0.6, 16, 16);
-    const nodeMat = new THREE.MeshBasicMaterial({ 
-      color: new THREE.Color().setHSL(0.5 + i * 0.05, 0.8, 0.6) 
+    const nodeMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color().setHSL(0.5 + i * 0.05, 0.8, 0.6)
     });
     const nodeMesh = new THREE.Mesh(nodeGeo, nodeMat);
     nodeMesh.position.set(x, y, z);
-    nodeMesh.userData = { 
-      angle: angle, 
-      radius: radius, 
-      bobPhase: Math.random() * Math.PI * 2 
+    nodeMesh.userData = {
+      angle: angle,
+      radius: radius,
+      bobPhase: Math.random() * Math.PI * 2
     };
     memoryScene.add(nodeMesh);
     memoryNodes.push(nodeMesh);
 
-    // Connect to core
     const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0, x,y,z], 3));
-    const lineMat = new THREE.LineBasicMaterial({ 
-      color: 0x00e5ff, 
-      transparent: true, 
-      opacity: 0.3 
+    lineGeo.setAttribute('position',
+      new THREE.Float32BufferAttribute([0, 0, 0, x, y, z], 3)
+    );
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0x00e5ff,
+      transparent: true,
+      opacity: 0.3
     });
     const line = new THREE.Line(lineGeo, lineMat);
     memoryScene.add(line);
     memoryLines.push(line);
   }
 
-  // Animation loop
   function animate() {
     memoryAnimationId = requestAnimationFrame(animate);
 
     const t = Date.now() * 0.0005;
 
-    // Rotate core
     core.rotation.x += 0.0003;
     core.rotation.y += 0.0005;
     glow.rotation.y -= 0.0002;
 
-    // Pulse core
     const scale = 1 + Math.sin(t) * 0.15;
     core.scale.set(scale, scale, scale);
 
-    // Animate nodes
     memoryNodes.forEach(node => {
       const data = node.userData;
       const orbitT = t * 0.5;
@@ -907,13 +949,12 @@ function initMemoryGraph() {
       const y = Math.sin(data.angle + orbitT) * data.radius;
       const z = Math.sin(data.angle * 2.3 + orbitT) * 3;
       const bob = Math.sin(data.bobPhase + t * 2) * 0.5;
-      
+
       node.position.set(x, y + bob, z);
       node.rotation.x += 0.005;
       node.rotation.y += 0.008;
     });
 
-    // Update line positions
     let nodeIdx = 0;
     memoryLines.forEach(line => {
       if (nodeIdx < memoryNodes.length) {
@@ -927,15 +968,19 @@ function initMemoryGraph() {
 
     memoryRenderer.render(memoryScene, memoryCamera);
   }
+
   animate();
 }
 
 function openMemory() {
+  if (!currentAgent) return; // prevents errors if brain is tapped from home
+
   const agentView = document.getElementById('agent-view');
   const memoryScreen = document.getElementById('memory-screen');
-  
-  document.getElementById('memory-title').textContent = `${agentConfig[currentAgent].name} Memory`;
-  
+
+  document.getElementById('memory-title').textContent =
+    `${agentConfig[currentAgent].name} Memory`;
+
   agentView.classList.add('exit');
   setTimeout(() => {
     agentView.classList.remove('active', 'exit');
@@ -947,10 +992,10 @@ function openMemory() {
 function closeMemory() {
   const memoryScreen = document.getElementById('memory-screen');
   const agentView = document.getElementById('agent-view');
-  
+
   if (memoryAnimationId) cancelAnimationFrame(memoryAnimationId);
   if (memoryRenderer) memoryRenderer.dispose();
-  
+
   memoryScreen.classList.add('exit');
   setTimeout(() => {
     memoryScreen.classList.remove('active', 'exit');
@@ -958,10 +1003,8 @@ function closeMemory() {
   }, 400);
 }
 
-// Wire brain button
 document.getElementById('brain-btn').addEventListener('click', openMemory);
 
-// Handle window resize
 window.addEventListener('resize', () => {
   if (!memoryCamera || !memoryRenderer) return;
   const w = window.innerWidth;
