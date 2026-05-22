@@ -256,16 +256,20 @@ async function sendMessageToAra(message) {
   const timeoutId = setTimeout(() => controller.abort(), 25000);
 
   try {
-    const res = await fetch(`${BACKEND_URL}/chat`, {
+    const res = await fetch(BACKEND_URL, {           // ← FIXED: removed /chat
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, api_key: "ara2026secret" }),
       signal: controller.signal
     });
+
     clearTimeout(timeoutId);
+
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
     const data = await res.json();
     return data.response || "Ara is thinking...";
+
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') return "Ara took too long. Try again.";
