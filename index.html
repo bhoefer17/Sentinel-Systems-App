@@ -190,7 +190,7 @@ const agentConfig = {
   rex: { name: 'Rex', color: 'var(--rex-primary)', theme: 'theme-rex', bg: 'agent-bg-rex', placeholder: 'Ask Rex...' }
 };
 
-// Clear old per-device localStorage (we now use server-side history)
+// Clear old per-device localStorage
 Object.keys(localStorage).forEach(key => {
   if (key.startsWith('araChat_')) {
     localStorage.removeItem(key);
@@ -201,14 +201,13 @@ async function loadChatHistory(agentId) {
   try {
     const res = await fetch("https://sentinel1.tailf05456.ts.net/history");
     const data = await res.json();
-    
+   
     messageStore[agentId] = data.history.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'agent',
       text: msg.content
     }));
   } catch (err) {
     console.error("Failed to load shared history from server:", err);
-    // Fallback to localStorage
     const saved = localStorage.getItem(`araChat_${agentId}`);
     if (saved) messageStore[agentId] = JSON.parse(saved);
   }
