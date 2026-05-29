@@ -195,9 +195,22 @@ const agentConfig = {
 };
 
 // === NEW: Chat History (localStorage) ===
-function loadChatHistory(agentId) {
-  const saved = localStorage.getItem(`araChat_${agentId}`);
-  if (saved) messageStore[agentId] = JSON.parse(saved);
+async function loadChatHistory(agentId) {
+  try {
+    const res = await fetch('/history');
+    const data = await res.json();
+    
+    // Convert server history format to your messageStore format
+    messageStore[agentId] = data.history.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'agent',
+      text: msg.content
+    }));
+  } catch (err) {
+    console.error("Failed to load shared history:", err);
+    // Fallback to localStorage if server fails
+    const saved = localStorage.getItem(`araChat_${agentId}`);
+    if (saved) messageStore[agentId] = JSON.parse(saved);
+  }
 }
 function saveChatHistory(agentId) {
   localStorage.setItem(`araChat_${agentId}`, JSON.stringify(messageStore[agentId]));
