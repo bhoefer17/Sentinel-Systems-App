@@ -348,7 +348,7 @@ function openAgent(id) {
     document.getElementById(`agent-bg-${a}`).style.opacity = a === id ? '1' : '0';
   });
 
-  loadChatHistory(id);
+  await loadChatHistory(id);
   renderMessages(id);
 
   const home = document.getElementById('home');
