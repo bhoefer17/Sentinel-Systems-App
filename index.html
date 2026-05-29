@@ -105,13 +105,12 @@
 <div class="agent-bg" id="agent-bg-atlas" style="opacity:0;z-index:1;"></div>
 <div class="agent-bg" id="agent-bg-rex" style="opacity:0;z-index:1;"></div>
 
-<!-- HOME SCREEN (unchanged) -->
+<!-- HOME SCREEN -->
 <div class="screen active" id="home">
   <div class="home-header">
     <div class="logo-wrap">
-      <!-- Your original SVG logo -->
       <svg width="130" height="130" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- (your full SVG code stays here) -->
+        <!-- (your original SVG stays here) -->
       </svg>
     </div>
     <h1 class="home-title">Sentinel Systems</h1>
@@ -179,44 +178,47 @@
 
 <script>
 // ============================================================
-// Sentinel Systems - Stable + Upgraded Chat
+// Sentinel Systems - Cross-Device Persistence Enabled
 // ============================================================
-
-const BACKEND_URL = "/api/chat";
-
+const BACKEND_URL = "/chat";   // ← Corrected
 let currentAgent = null;
 let isLoading = false;
 const messageStore = { ara: [], atlas: [], rex: [] };
-
 const agentConfig = {
-  ara:   { name: 'Ara',   color: 'var(--ara-primary)',   theme: 'theme-ara',   bg: 'agent-bg-ara',   placeholder: 'Ask Ara...' },
+  ara: { name: 'Ara', color: 'var(--ara-primary)', theme: 'theme-ara', bg: 'agent-bg-ara', placeholder: 'Ask Ara...' },
   atlas: { name: 'Atlas', color: 'var(--atlas-primary)', theme: 'theme-atlas', bg: 'agent-bg-atlas', placeholder: 'Ask Atlas...' },
-  rex:   { name: 'Rex',   color: 'var(--rex-primary)',   theme: 'theme-rex',   bg: 'agent-bg-rex',   placeholder: 'Ask Rex...' }
+  rex: { name: 'Rex', color: 'var(--rex-primary)', theme: 'theme-rex', bg: 'agent-bg-rex', placeholder: 'Ask Rex...' }
 };
 
-// === NEW: Chat History (localStorage) ===
+// Clear old per-device localStorage (we now use server-side history)
+Object.keys(localStorage).forEach(key => {
+  if (key.startsWith('araChat_')) {
+    localStorage.removeItem(key);
+  }
+});
+
 async function loadChatHistory(agentId) {
   try {
     const res = await fetch('/history');
     const data = await res.json();
     
-    // Convert server history format to your messageStore format
     messageStore[agentId] = data.history.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'agent',
       text: msg.content
     }));
   } catch (err) {
-    console.error("Failed to load shared history:", err);
-    // Fallback to localStorage if server fails
+    console.error("Failed to load shared history from server:", err);
+    // Fallback to localStorage
     const saved = localStorage.getItem(`araChat_${agentId}`);
     if (saved) messageStore[agentId] = JSON.parse(saved);
   }
 }
+
 function saveChatHistory(agentId) {
   localStorage.setItem(`araChat_${agentId}`, JSON.stringify(messageStore[agentId]));
 }
 
-// === NEW: Typing Indicator ===
+// === Typing Indicator + Error handling (kept from your version) ===
 function showTypingIndicator(show) {
   const box = document.getElementById('chat-box');
   let typingEl = document.getElementById('ara-typing');
@@ -230,7 +232,6 @@ function showTypingIndicator(show) {
   if (show) typingEl.innerHTML = 'Ara is thinking<span class="typing-dots">...</span>';
 }
 
-// === NEW: Error with Retry Button ===
 function showErrorWithRetry(errorMessage, originalMessage) {
   const box = document.getElementById('chat-box');
   const errorDiv = document.createElement('div');
@@ -238,7 +239,7 @@ function showErrorWithRetry(errorMessage, originalMessage) {
   errorDiv.style.cssText = 'background:#3a1f1f;border:1px solid #c0392b;';
   errorDiv.innerHTML = `
     ${errorMessage}
-    <button onclick="retryLastMessage('${originalMessage}', this)" 
+    <button onclick="retryLastMessage('${originalMessage}', this)"
             style="margin-left:12px;padding:4px 12px;background:#c0392b;color:white;border:none;border-radius:6px;font-size:0.8rem;cursor:pointer;">
       Retry
     </button>
@@ -259,30 +260,23 @@ window.retryLastMessage = async function(originalMessage, buttonElement) {
   }
 };
 
-// === IMPROVED sendMessageToAra (robust + timeout) ===
 async function sendMessageToAra(message) {
   if (isLoading || !currentAgent) return null;
   isLoading = true;
   showTypingIndicator(true);
-
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 25000);
-
   try {
-    const res = await fetch(BACKEND_URL, {           // ← FIXED: removed /chat
+    const res = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, api_key: "ara2026secret" }),
       signal: controller.signal
     });
-
     clearTimeout(timeoutId);
-
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
     const data = await res.json();
     return data.response || "Ara is thinking...";
-
   } catch (err) {
     clearTimeout(timeoutId);
     if (err.name === 'AbortError') return "Ara took too long. Try again.";
@@ -294,17 +288,14 @@ async function sendMessageToAra(message) {
   }
 }
 
-// === UPDATED sendMessage ===
 async function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text || !currentAgent) return;
-
   messageStore[currentAgent].push({ role: 'user', text });
   input.value = '';
   renderMessages(currentAgent);
   saveChatHistory(currentAgent);
-
   const araReply = await sendMessageToAra(text);
   if (araReply) {
     messageStore[currentAgent].push({ role: 'agent', text: araReply });
@@ -335,15 +326,14 @@ function renderMessages(agentId) {
   box.scrollTop = box.scrollHeight;
 }
 
-// === UPDATED openAgent (loads history) ===
-function openAgent(id) {
+// === UPDATED openAgent ===
+async function openAgent(id) {
   currentAgent = id;
   const cfg = agentConfig[id];
   const view = document.getElementById('agent-view');
   view.className = `screen agent-screen ${cfg.theme}`;
   document.getElementById('agent-title').textContent = cfg.name;
   document.getElementById('chat-input').placeholder = cfg.placeholder;
-
   ['ara', 'atlas', 'rex'].forEach(a => {
     document.getElementById(`agent-bg-${a}`).style.opacity = a === id ? '1' : '0';
   });
@@ -385,17 +375,13 @@ function toggleMic() {
   console.log('Mic pressed');
 }
 
-// Keyboard support
 document.getElementById('chat-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendMessage();
 });
 
 // === YOUR ORIGINAL CODE (starfield, nebulae, memory graph) ===
-// (All your original functions stay exactly as they were)
-
+// (Keep all your original functions here exactly as they were)
 document.getElementById('brain-btn').addEventListener('click', openMemory);
-
-// Start everything
 initStars();
 drawStars();
 setTimeout(() => {
