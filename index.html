@@ -178,7 +178,7 @@
 
 <script>
 // ============================================================
-// Sentinel Systems - Cross-Device Persistence Enabled
+// Sentinel Systems - Cross-Device Persistence Enabled (Fixed)
 // ============================================================
 const BACKEND_URL = "https://sentinel1.tailf05456.ts.net/chat";
 let currentAgent = null;
@@ -190,24 +190,21 @@ const agentConfig = {
   rex: { name: 'Rex', color: 'var(--rex-primary)', theme: 'theme-rex', bg: 'agent-bg-rex', placeholder: 'Ask Rex...' }
 };
 
-// Clear old per-device localStorage
+// Clear old localStorage
 Object.keys(localStorage).forEach(key => {
-  if (key.startsWith('araChat_')) {
-    localStorage.removeItem(key);
-  }
+  if (key.startsWith('araChat_')) localStorage.removeItem(key);
 });
 
 async function loadChatHistory(agentId) {
   try {
     const res = await fetch("https://sentinel1.tailf05456.ts.net/history");
     const data = await res.json();
-   
     messageStore[agentId] = data.history.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'agent',
       text: msg.content
     }));
   } catch (err) {
-    console.error("Failed to load shared history from server:", err);
+    console.error("Failed to load shared history:", err);
     const saved = localStorage.getItem(`araChat_${agentId}`);
     if (saved) messageStore[agentId] = JSON.parse(saved);
   }
@@ -217,7 +214,6 @@ function saveChatHistory(agentId) {
   localStorage.setItem(`araChat_${agentId}`, JSON.stringify(messageStore[agentId]));
 }
 
-// === Typing Indicator + Error handling (kept from your version) ===
 function showTypingIndicator(show) {
   const box = document.getElementById('chat-box');
   let typingEl = document.getElementById('ara-typing');
@@ -231,55 +227,20 @@ function showTypingIndicator(show) {
   if (show) typingEl.innerHTML = 'Ara is thinking<span class="typing-dots">...</span>';
 }
 
-function showErrorWithRetry(errorMessage, originalMessage) {
-  const box = document.getElementById('chat-box');
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'msg msg-agent';
-  errorDiv.style.cssText = 'background:#3a1f1f;border:1px solid #c0392b;';
-  errorDiv.innerHTML = `
-    ${errorMessage}
-    <button onclick="retryLastMessage('${originalMessage}', this)"
-            style="margin-left:12px;padding:4px 12px;background:#c0392b;color:white;border:none;border-radius:6px;font-size:0.8rem;cursor:pointer;">
-      Retry
-    </button>
-  `;
-  box.appendChild(errorDiv);
-  box.scrollTop = box.scrollHeight;
-}
-
-window.retryLastMessage = async function(originalMessage, buttonElement) {
-  buttonElement.disabled = true;
-  buttonElement.textContent = 'Retrying...';
-  const araReply = await sendMessageToAra(originalMessage);
-  buttonElement.parentElement.remove();
-  if (araReply) {
-    messageStore[currentAgent].push({ role: 'agent', text: araReply });
-    renderMessages(currentAgent);
-    saveChatHistory(currentAgent);
-  }
-};
-
 async function sendMessageToAra(message) {
   if (isLoading || !currentAgent) return null;
   isLoading = true;
   showTypingIndicator(true);
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000);
   try {
     const res = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, api_key: "ara2026secret" }),
-      signal: controller.signal
+      body: JSON.stringify({ message, api_key: "ara2026secret" })
     });
-    clearTimeout(timeoutId);
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
     const data = await res.json();
     return data.response || "Ara is thinking...";
   } catch (err) {
-    clearTimeout(timeoutId);
-    if (err.name === 'AbortError') return "Ara took too long. Try again.";
-    if (err.message.includes('Failed to fetch')) return "Can't reach Ara. Check Tailscale.";
     return "Something went wrong. Try again.";
   } finally {
     isLoading = false;
@@ -300,8 +261,6 @@ async function sendMessage() {
     messageStore[currentAgent].push({ role: 'agent', text: araReply });
     renderMessages(currentAgent);
     saveChatHistory(currentAgent);
-  } else {
-    showErrorWithRetry("Failed to get response from Ara.", text);
   }
 }
 
@@ -325,7 +284,6 @@ function renderMessages(agentId) {
   box.scrollTop = box.scrollHeight;
 }
 
-// === UPDATED openAgent ===
 async function openAgent(id) {
   currentAgent = id;
   const cfg = agentConfig[id];
@@ -336,15 +294,12 @@ async function openAgent(id) {
   ['ara', 'atlas', 'rex'].forEach(a => {
     document.getElementById(`agent-bg-${a}`).style.opacity = a === id ? '1' : '0';
   });
-
   await loadChatHistory(id);
   renderMessages(id);
-
   const home = document.getElementById('home');
   home.classList.add('exit');
   setTimeout(() => home.classList.remove('active', 'exit'), 400);
   view.classList.add('active');
-  starCanvas.style.opacity = '0.4';
 }
 
 function goHome() {
@@ -356,7 +311,6 @@ function goHome() {
   ['ara', 'atlas', 'rex'].forEach(a => {
     document.getElementById(`agent-bg-${a}`).style.opacity = '0';
   });
-  starCanvas.style.opacity = '1';
 }
 
 function addToNeurocore() {
@@ -378,15 +332,15 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendMessage();
 });
 
-// === YOUR ORIGINAL CODE (starfield, nebulae, memory graph) ===
-// (Keep all your original functions here exactly as they were)
-document.getElementById('brain-btn').addEventListener('click', openMemory);
+// Start
 initStars();
 drawStars();
 setTimeout(() => {
-  paintNebula('neural-ara', 195, 220, 210);
-  paintNebula('neural-atlas', 28, 45, 35);
-  paintNebula('neural-rex', 120, 135, 128);
+  if (typeof paintNebula === 'function') {
+    paintNebula('neural-ara', 195, 220, 210);
+    paintNebula('neural-atlas', 28, 45, 35);
+    paintNebula('neural-rex', 120, 135, 128);
+  }
 }, 100);
 </script>
 </body>
