@@ -180,7 +180,7 @@
 // ============================================================
 // Sentinel Systems - Cross-Device Persistence Enabled
 // ============================================================
-const BACKEND_URL = "/chat";   // ← Corrected
+const BACKEND_URL = "https://sentinel1.tailf05456.ts.net/chat";
 let currentAgent = null;
 let isLoading = false;
 const messageStore = { ara: [], atlas: [], rex: [] };
@@ -199,7 +199,7 @@ Object.keys(localStorage).forEach(key => {
 
 async function loadChatHistory(agentId) {
   try {
-    const res = await fetch('/history');
+    const res = await fetch("https://sentinel1.tailf05456.ts.net/history");
     const data = await res.json();
     
     messageStore[agentId] = data.history.map(msg => ({
