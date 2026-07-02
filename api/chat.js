@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch('https://sentinel1.tailf05456.ts.net/chat', {
+    const response = await fetch('https://sentinel1.tailscale.ts.net/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
